@@ -1,0 +1,28 @@
+    numpy
+    pytorch-cuda
+    pytorch
+    nvidia
+    torchvision
+    torchaudio
+    pymongo
+    scikit-image
+    daisy
+    zarr
+    lsds
+    tensorboard
+    neuroglancer
+    cloud-volume
+    tensorboardx
+    networkx
+    cython
+    pysqlite3
+    mwatershed @ git+https://github.com/pattonw/mwatershed
+    funlib.geometry @ git+https://github.com/funkelab/funlib.geometry
+    funlib.persistence @ git+https://github.com/funkelab/funlib.persistence
+    funlib.segment @ git+https://github.com/funkelab/funlib.segment
+    gunpowder @ git+https://github.com/funkey/gunpowder
+    funlib.learn.torch @ git+https://github.com/funkelab/funlib.learn.torch
+    funlib.evaluate @ git+https://github.com/funkelab/funlib.evaluate
+    funlib.math @ git+https://github.com/funkelab/funlib.math
+    rusty_mws @ git+https://github.com/brianreicher/rusty_mws
+    hglom @ git+https://github.com/brianreicher/hierarchical_agglom
