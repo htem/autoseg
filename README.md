@@ -4,13 +4,13 @@ Automated segmentation for large-scale biological datasets.
 
 <div align="center">
   <!-- Lint Actions -->
-  <a href="https://github.com/htem/autoseg/actions/workflows/black.yml">
-    <img src="https://github.com/htem/autoseg/actions/workflows/black.yml/badge.svg"
+  <a href="https://github.com/htem/autoseg/actions/workflows/black.yaml">
+    <img src="https://github.com/htem/autoseg/actions/workflows/black.yaml/badge.svg"
       alt="Lint Actions Status" />
   </a>
   <!-- Test Actions -->
-  <a href="https://github.com/htem/autoseg/actions/workflows/tests.yml">
-    <img src="https://github.com/htem/autoseg/actions/workflows/tests.yml/badge.svg"
+  <a href="https://github.com/htem/autoseg/actions/workflows/tests.yaml">
+    <img src="https://github.com/htem/autoseg/actions/workflows/tests.yaml/badge.svg"
       alt="Tests Actions Status" />
   </a>
 </div>
