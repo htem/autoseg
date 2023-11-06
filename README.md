@@ -1,23 +1,15 @@
 # autoseg
+
+Automated segmentation for large-scale biological datasets.
+
 <div align="center">
   <!-- API Actions -->
   <a href="https://github.com/GenerateNU/turbine/actions/workflows/api.yml">
     <img src="https://github.com/GenerateNU/turbine/actions/workflows/api.yml/badge.svg"
-      alt="API actions status" />
-  </a>
-  <!-- Ingestion Actions -->
-  <a href="https://github.com/GenerateNU/turbine/actions/workflows/ingestion.yml">
-    <img src="https://github.com/GenerateNU/turbine/actions/workflows/ingestion.yml/badge.svg"
-      alt="Ingestion actions status" />
-  </a>
-  <!-- Tokenization Actions -->
-  <a href="https://github.com/GenerateNU/turbine/actions/workflows/tokenization.yml">
-    <img src="https://github.com/GenerateNU/turbine/actions/workflows/tokenization.yml/badge.svg"
-      alt="Tokenization actions status" />
+      alt="Tests Actions status" />
   </a>
 </div>
 
-## Automated segmentation for large-scale biological datasets.
 
 
 
