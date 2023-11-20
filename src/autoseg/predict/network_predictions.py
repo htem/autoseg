@@ -20,7 +20,7 @@ def predict_task(
     raw_file:str,
     raw_dataset:str,
     out_file:str="raw_prediction.zarr",
-    out_datasets:str=[(f"pred_affs", len(neighborhood)), (f"pred_lsds", 10)],
+    out_datasets:list[tuple(str, int)]=[(f"pred_affs", len(neighborhood)), (f"pred_lsds", 10), (f"pred_enhanced", 1)],
     num_workers:int=1,
     n_gpu:int=1,
     model_path:str="./",
