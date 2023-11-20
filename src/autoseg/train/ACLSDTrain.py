@@ -10,61 +10,45 @@ logging.basicConfig(level=logging.INFO)
 
 torch.backends.cudnn.benchmark = True
 
-from ..models.STELARRModel import STELARRModel
-from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
-from ..networks.NLayerDiscriminator import NLayerDiscriminator, NLayerDiscriminator3D
-from ..networks.UNet import UNet
-from ..losses.GANLoss import GANLoss
-from ..losses.MSELoss import Weighted_MSELoss
-from ..gp_filters.random_noise import RandomNoiseAugment
-from ..gp_filters.smooth_array import SmoothArray
-from ..utils import neighborhood
+from model import *
+from rusty_skel_correct_seg import get_skel_correct_segmentation
 
+raw_file = "../../data/xpress-challenge.zarr"
+raw_dataset = "volumes/training_raw"
+out_file = "./raw_predictions.zarr"
+iteration = "latest"
 
-def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
-                    raw_dataset:str="volumes/training_raw",
-                    out_file:str="./raw_predictions.zarr",
-                    iterations:int=100000, 
-                    warmup:int=200000, 
-                    save_every:int=25000,
-    ) -> None:
+# TODO: refactor
+def aclsd_pipeline(iterations, warmup=5000, save_every=1000, rinse=True) -> None:
     
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
     unlabelled = gp.ArrayKey("UNLABELLED")
     pred_affs = gp.ArrayKey("PRED_AFFS")
+    pred_affs_ac = gp.ArrayKey("PRED_AFFS_AC")
     gt_affs = gp.ArrayKey("GT_AFFS")
     affs_weights = gp.ArrayKey("AFFS_WEIGHTS")
+    affs_weights_ac = gp.ArrayKey("AFFS_WEIGHTS_AC")
     gt_affs_mask = gp.ArrayKey("AFFS_MASK") 
     pred_lsds = gp.ArrayKey("PRED_LSDS")
     gt_lsds = gp.ArrayKey("GT_LSDS")
     gt_lsds_mask = gp.ArrayKey("GT_LSDS_MASK")
-    pred_enhanced = gp.ArrayKey("PRED_ENHANCED")
-    gt_enhanced = gp.ArrayKey("GT_ENHANCED")
-    fake_pred = gp.ArrayKey("FAKE_PRED")
-    real_pred = gp.ArrayKey("REAL_PRED")
 
-    unet: UNet = UNet(
-        in_channels=1,
-        ngf=12,
-        fmap_inc_factor=3,
-        downsample_factors=[(2,2,2),(2,2,2)],
-        constant_upsample=True,
-        num_heads=3,
-        padding="valid"
-    )
-    model: STELARRModel = STELARRModel(unet, unet.ngf)
-    discriminator: NLayerDiscriminator3D = NLayerDiscriminator(ndims=3,) # NLayerDiscriminator3D
-    loss: Weighted_MSELoss = Weighted_MSELoss(discrim=discriminator)#aff_lambda=0)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
-    discriminator_optimizer = torch.optim.Adam(discriminator.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
-    discriminator_loss: GANLoss = GANLoss()
+    # initial MTLSD UNet
+    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=num_fmaps)
+    mtlsd_loss = WeightedMTLSD_MSELoss()#aff_lambda=0)
+    mtlsd_optimizer = torch.optim.Adam(params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
 
+    # second ACLSD UNet
+    aclsd_model = ACLSDModel(unet=unet_ac, num_fmaps=num_fmaps)
+    aclsd_loss = WeightedACLSD_MSELoss()#aff_lambda=0)
+    aclsd_optimizer = torch.optim.Adam(aclsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
 
+    # input/output for MTLSD
     increase = 8 * 3
-    input_shape = [100] * 3
-    output_shape = model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[2:]
+    input_shape = [64] * 3
+    output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[2:]
     print(input_shape, output_shape)
 
     voxel_size = gp.Coordinate((33,) * 3)
@@ -73,17 +57,23 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
 
     context = ((input_size - output_size) / 2) * 4
 
+    # input/output for ACLSD (second pass)
+    input_shape_ac = [64] * 3
+    output_shape_ac = aclsd_model.forward(torch.empty(size=[1, 10] + input_shape_ac))[0].shape[1:]
+    print(input_shape_ac, output_shape_ac)
+
+    input_size_ac = gp.Coordinate(input_shape_ac) * voxel_size
+    output_size_ac = gp.Coordinate(output_shape_ac) * voxel_size
+
     # Zarr sources
     predicted_source = (
         gp.ZarrSource(
             raw_file,
             {
                 raw: raw_dataset,
-                gt_enhanced: "volumes/raw_30nm_cropped"
             },
             {
                 raw: gp.ArraySpec(interpolatable=True),
-                gt_enhanced: gp.ArraySpec(interpolatable=False),
             },
         ),
         gp.ZarrSource(
@@ -110,16 +100,16 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
             labels: f"volumes/training_gt_labels",
             labels_mask: f"volumes/training_labels_mask",
             unlabelled: f"volumes/training_unlabelled_mask",
-            gt_enhanced: f"volumes/raw_30nm_cropped",
         },
         {
             raw: gp.ArraySpec(interpolatable=True),
             labels: gp.ArraySpec(interpolatable=False),
             labels_mask: gp.ArraySpec(interpolatable=False),
             unlabelled: gp.ArraySpec(interpolatable=False),
-            gt_enhanced: gp.ArraySpec(interpolatable=False),
         },
     )
+
+    # add additional ZarrSources for each training volume across V1/V2/white matter
     gt_source += gp.MergeProvider()
     gt_source += gp.RandomLocation(mask=labels_mask, min_masked=0.5)
    
@@ -133,18 +123,16 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
         request.add(gt_affs, output_size)
         request.add(gt_lsds, output_size)
         request.add(affs_weights, output_size)
+        request.add(affs_weights_ac, output_size)
         request.add(gt_affs_mask, output_size)
         request.add(gt_lsds_mask, output_size)
         request.add(unlabelled, output_size)
         request.add(pred_affs, output_size)
+        request.add(pred_affs_ac, output_size_ac)
         request.add(pred_lsds, output_size)
-        request.add(pred_enhanced, output_size)
-        request.add(gt_enhanced, input_size)
 
         training_pipeline = gp.Normalize(raw)
-        training_pipeline += gp.Normalize(gt_enhanced)
         training_pipeline += gp.Pad(raw, None)
-        training_pipeline += gp.Pad(gt_enhanced, context)
         training_pipeline += gp.Pad(labels, context)
         training_pipeline += gp.Pad(labels_mask, context)
         training_pipeline += gp.Pad(unlabelled, context)
@@ -170,7 +158,7 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
             sigma=10 * 33,
             lsds_mask=gt_lsds_mask,
             unlabelled=unlabelled,
-            downsample=1,
+            downsample=2,
         )
 
         training_pipeline += gp.GrowBoundary(labels, mask=unlabelled)
@@ -187,15 +175,15 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
 
         training_pipeline += gp.BalanceLabels(gt_affs, affs_weights, mask=gt_affs_mask)
 
-        training_pipeline += gp.Unsqueeze([raw, gt_enhanced])
+        training_pipeline += gp.Unsqueeze([raw])
         training_pipeline += gp.Stack(1)
 
         training_pipeline += gp.PreCache(cache_size=40, num_workers=10)
 
         training_pipeline += gp.torch.Train(
-            model,
-            loss,
-            optimizer,
+            mtlsd_model,
+            mtlsd_loss,
+            mtlsd_optimizer,
             inputs={"input": raw},
             loss_inputs={
                 0: pred_lsds,
@@ -204,44 +192,14 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
                 3: pred_affs,
                 4: gt_affs,
                 5: affs_weights,
-                6: pred_enhanced,
-                7: gt_enhanced,
             },
-            outputs={0: pred_lsds, 1: pred_affs, 2: pred_enhanced},
+            outputs={0: pred_lsds, 1: pred_affs},
+            checkpoint_basename="mtlsd_model",
             save_every=save_every,
-            checkpoint_basename="multitask_model",
-            log_dir="log/mt_log",
+            log_dir="log/log_mtlsd",
         )
 
-        # two train nodes, use GANloss 
-        training_pipeline += gp.torch.Train(
-            discriminator,
-            discriminator_loss, # GAN Loss Y with lambda
-            discriminator_optimizer,
-            inputs={"input": gt_enhanced},
-            loss_inputs={
-                "real_pred": real_pred,
-            },
-            outputs={0: real_pred},
-            save_every=save_every,
-            checkpoint_basename="discrim_model",
-            log_dir="log/discrim_log",
-        )
-        training_pipeline += gp.torch.Train(
-            discriminator,
-            discriminator_loss, # GAN Loss X with lambda
-            discriminator_optimizer,
-            inputs={"input": pred_enhanced},
-            loss_inputs={
-                "fake_pred": fake_pred,
-            },
-            outputs={0: fake_pred},
-            save_every=save_every,
-            checkpoint_basename="discrim_model",
-            log_dir="log/discrim_log",
-        )
-
-        training_pipeline += gp.Squeeze([raw, gt_lsds, pred_lsds, gt_affs, pred_affs, gt_enhanced, pred_enhanced])
+        training_pipeline += gp.Squeeze(arrays=[raw, gt_lsds, pred_lsds, gt_affs, pred_affs])
 
         training_pipeline += gp.Snapshot(
             dataset_names={
@@ -252,14 +210,53 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
                 pred_lsds: "pred_lsds",
                 gt_affs: "gt_affs",
                 pred_affs: "pred_affs",
-                affs_weights: "affs_weights",
-                gt_enhanced: "gt_enhanced",
-                pred_enhanced: "pred_enhanced",
+                affs_weights: "affs_weights"
             },
             dataset_dtypes={
                 gt_affs: np.float32
             },
-            output_filename="batch_latest.zarr",
+            output_filename="mtlsd_batch_{iteration}.zarr",
+            every=save_every,
+        )
+
+        training_pipeline += gp.Unsqueeze([gt_affs])
+
+        training_pipeline += gp.BalanceLabels(gt_affs, affs_weights_ac, mask=gt_affs_mask)
+
+        training_pipeline += gp.Stack(1)
+
+        training_pipeline += gp.torch.Train(
+            aclsd_model,
+            aclsd_loss,
+            aclsd_optimizer,
+            inputs={"input": pred_lsds},
+            loss_inputs={
+                0: pred_affs_ac,
+                1: gt_affs,
+                2: affs_weights_ac,
+            },
+            outputs={0: pred_affs_ac},
+            checkpoint_basename="aclsd_model",
+            save_every=save_every,
+            log_dir="log/log_aclsd",
+        )
+        
+        training_pipeline += gp.Squeeze(arrays=[gt_affs, pred_affs_ac])
+
+        training_pipeline += gp.Snapshot(
+            dataset_names={
+                raw: "raw",
+                labels: "labels",
+                gt_lsds: "gt_lsds",
+                unlabelled: "unlabelled",
+                gt_affs: "gt_affs",
+                pred_affs_ac: "pred_affs_ac",
+                affs_weights_ac: "affs_weights_ac"
+            },
+            dataset_dtypes={
+                gt_affs: np.float32
+            },
+            output_filename="aclsd_batch_{iteration}.zarr",
             every=save_every,
         )
 
@@ -271,7 +268,7 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
     ):  # Allows to do initial segmentation with existing model checkpoints
         # Make segmentation predictions
         get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
-        model.train()
+        mtlsd_model.train()
     elif warmup > 0:
         training_pipeline, request = get_training_pipeline()
         logging.info("PIPELINE IS SET . . .")
@@ -288,21 +285,26 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
 
         # Make segmentation predictions
         get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
-        model.train()
+        mtlsd_model.train()
 
     # Add segmentation predictions to training pipeline
     # Then repeat, scaling up the prediction usage
-    for ratio in [0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
-        print(f"Rinse & Repeat @ ratio: {ratio}")
-        training_pipeline, request = get_training_pipeline()
-        pipeline = (gt_source, predicted_source) + gp.RandomProvider(
-            probabilities=[1 - ratio, ratio]
-        )
-        pipeline += training_pipeline
-        with gp.build(pipeline):
-            for i in trange(iterations):
-                pipeline.request_batch(request)
+    if rinse:
+        for ratio in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]:
+            print(f"Rinse & Repeat @ ratio: {ratio}")
+            training_pipeline, request = get_training_pipeline()
+            pipeline = (gt_source, predicted_source) + gp.RandomProvider(
+                probabilities=[1 - ratio, ratio]
+            )
+            pipeline += training_pipeline
+            with gp.build(pipeline):
+                for i in trange(iterations):
+                    pipeline.request_batch(request)
 
-        # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
-        model.train()
+            # Make segmentation predictions
+            get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+            mtlsd_model.train()
+
+
+if __name__ == "__main__":
+    aclsd_pipeline(iterations=50000, warmup=40000, save_every=10000, rinse=True)
