@@ -10,17 +10,24 @@ logging.basicConfig(level=logging.INFO)
 
 torch.backends.cudnn.benchmark = True
 
-from model import *
-from rusty_skel_correct_seg import get_skel_correct_segmentation
+from ..models.ACLSDModel import ACLSDModel
+from ..models.MTLSDModel import MTLSDModel
+from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
+from ..networks.UNet import UNet
+from ..losses.MSELoss import Weighted_MSELoss
+from ..losses.ACLSDLoss import WeightedACLSD_MSELoss
+from ..gp_filters.random_noise import RandomNoiseAugment
+from ..gp_filters.smooth_array import SmoothArray
+from ..utils import neighborhood
 
-raw_file = "../../data/xpress-challenge.zarr"
-raw_dataset = "volumes/training_raw"
-out_file = "./raw_predictions.zarr"
-iteration = "latest"
 
-# TODO: refactor
-def aclsd_pipeline(iterations, warmup=5000, save_every=1000, rinse=True) -> None:
-    
+def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
+                    raw_dataset:str="volumes/training_raw",
+                    out_file:str="./raw_predictions.zarr",
+                    iterations:int=100000, 
+                    warmup:int=200000, 
+                    save_every:int=25000,
+    ) -> None:    
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
@@ -36,12 +43,21 @@ def aclsd_pipeline(iterations, warmup=5000, save_every=1000, rinse=True) -> None
     gt_lsds_mask = gp.ArrayKey("GT_LSDS_MASK")
 
     # initial MTLSD UNet
-    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=num_fmaps)
-    mtlsd_loss = WeightedMTLSD_MSELoss()#aff_lambda=0)
+    unet_ac = unet = UNet(
+        in_channels=1,
+        ngf=12,
+        fmap_inc_factor=3,
+        downsample_factors=[(2,2,2),(2,2,2)],
+        constant_upsample=True,
+        num_heads=3,
+        padding="same"
+    )
+    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.ngf)
+    mtlsd_loss = Weighted_MSELoss()#aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
 
     # second ACLSD UNet
-    aclsd_model = ACLSDModel(unet=unet_ac, num_fmaps=num_fmaps)
+    aclsd_model = ACLSDModel(unet=unet_ac, num_fmaps=unet_ac.ngf)
     aclsd_loss = WeightedACLSD_MSELoss()#aff_lambda=0)
     aclsd_optimizer = torch.optim.Adam(aclsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
 

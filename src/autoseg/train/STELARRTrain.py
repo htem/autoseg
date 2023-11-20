@@ -259,7 +259,7 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
             dataset_dtypes={
                 gt_affs: np.float32
             },
-            output_filename="batch_latest.zarr",
+            output_filename="batch_{latest}.zarr",
             every=save_every,
         )
 
