@@ -3,9 +3,9 @@ from funlib.learn.torch.models import UNet, ConvPass
 from ..utils import neighborhood
 
 
-class MultitaskModel(torch.nn.Module):
+class STELARRModel(torch.nn.Module):
     def __init__(self, unet: UNet, num_fmaps: int) -> None:
-        super(MultitaskModel, self).__init__()
+        super(STELARRModel, self).__init__()
 
         self.unet: UNet = unet
         self.lsd_head: ConvPass = ConvPass(num_fmaps, 10, [[1, 1, 1]], activation="Sigmoid")
