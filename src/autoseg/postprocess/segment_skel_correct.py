@@ -1,4 +1,5 @@
-import sys
+# UTILIZES RUSTY_MWS FOR ALL SEGMETATION ORIGINALLY WRITTEN BY BRIAN REICHER (2023)
+
 import rusty_mws
 
 from ..utils import neighborhood
