@@ -285,6 +285,7 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
         # Make segmentation predictions
         get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
         mtlsd_model.train()
+        aclsd_model.train()
     elif warmup > 0:
         training_pipeline, request = get_training_pipeline()
         logging.info("PIPELINE IS SET . . .")
@@ -302,25 +303,22 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
         # Make segmentation predictions
         get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
         mtlsd_model.train()
+        aclsd_model.train()
 
     # Add segmentation predictions to training pipeline
     # Then repeat, scaling up the prediction usage
-    if rinse:
-        for ratio in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]:
-            print(f"Rinse & Repeat @ ratio: {ratio}")
-            training_pipeline, request = get_training_pipeline()
-            pipeline = (gt_source, predicted_source) + gp.RandomProvider(
-                probabilities=[1 - ratio, ratio]
-            )
-            pipeline += training_pipeline
-            with gp.build(pipeline):
-                for i in trange(iterations):
-                    pipeline.request_batch(request)
+    for ratio in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]:
+        print(f"Rinse & Repeat @ ratio: {ratio}")
+        training_pipeline, request = get_training_pipeline()
+        pipeline = (gt_source, predicted_source) + gp.RandomProvider(
+            probabilities=[1 - ratio, ratio]
+        )
+        pipeline += training_pipeline
+        with gp.build(pipeline):
+            for i in trange(iterations):
+                pipeline.request_batch(request)
 
-            # Make segmentation predictions
-            get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
-            mtlsd_model.train()
-
-
-if __name__ == "__main__":
-    aclsd_pipeline(iterations=50000, warmup=40000, save_every=10000, rinse=True)
+        # Make segmentation predictions
+        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        mtlsd_model.train()
+        aclsd_model.train()
