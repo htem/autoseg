@@ -79,7 +79,7 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
             raw_file,
             {
                 raw: raw_dataset,
-                gt_enhanced: "volumes/raw_30nm_cropped"
+                gt_enhanced: "volumes/training_gt_enhanced"
             },
             {
                 raw: gp.ArraySpec(interpolatable=True),
@@ -110,7 +110,7 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
             labels: f"volumes/training_gt_labels",
             labels_mask: f"volumes/training_labels_mask",
             unlabelled: f"volumes/training_unlabelled_mask",
-            gt_enhanced: f"volumes/raw_30nm_cropped",
+            gt_enhanced: f"volumes/training_gt_enhanced",
         },
         {
             raw: gp.ArraySpec(interpolatable=True),
