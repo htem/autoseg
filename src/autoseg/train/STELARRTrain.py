@@ -12,10 +12,10 @@ torch.backends.cudnn.benchmark = True
 
 from ..models.STELARRModel import STELARRModel
 from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
-from ..networks.NLayerDiscriminator import NLayerDiscriminator
+from ..networks.NLayerDiscriminator import NLayerDiscriminator, NLayerDiscriminator3D
 from ..networks.UNet import UNet
 from ..losses.GANLoss import GANLoss
-from ..losses.MSELoss import WeightedMTLSD_MSELoss
+from ..losses.MSELoss import Weighted_MSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood
@@ -56,12 +56,12 @@ def multitask_pipeline(iterations:int=100000,
         num_heads=3,
         padding="valid"
     )
-    model = STELARRModel(unet, unet.ngf)
-    discriminator = NLayerDiscriminator(ndims=3,) # NLayerDiscriminator3D
-    loss = WeightedMTLSD_MSELoss(discrim=discriminator)#aff_lambda=0)
+    model: STELARRModel = STELARRModel(unet, unet.ngf)
+    discriminator: NLayerDiscriminator3D = NLayerDiscriminator(ndims=3,) # NLayerDiscriminator3D
+    loss: Weighted_MSELoss = Weighted_MSELoss(discrim=discriminator)#aff_lambda=0)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
     discriminator_optimizer = torch.optim.Adam(discriminator.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
-    discriminator_loss = GANLoss()
+    discriminator_loss: GANLoss = GANLoss()
 
 
     increase = 8 * 3

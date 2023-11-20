@@ -1,9 +1,9 @@
 import torch
 
 
-class WeightedMTLSD_MSELoss(torch.nn.Module):
+class Weighted_MSELoss(torch.nn.Module):
     def __init__(self, aff_lambda=1.0, gan_lambda=1.0, discrim=None):
-        super(WeightedMTLSD_MSELoss, self).__init__()
+        super(Weighted_MSELoss, self).__init__()
         self.aff_lambda = aff_lambda
         self.gan_lambda = gan_lambda
         self.mse_loss = torch.nn.MSELoss()
@@ -39,7 +39,7 @@ class WeightedMTLSD_MSELoss(torch.nn.Module):
         lsd_loss = self._calc_loss(pred_lsds, gt_lsds, lsds_weights)
         aff_loss = self.aff_lambda * self._calc_loss(pred_affs, gt_affs, affs_weights)
 
-        # calculate MSE loss for GAN errors
+        # calculate MSE loss for GAN errors, pass data through discrim network in process
         if gt_enhanced is not None and pred_enhanced is not None:
             real_scores = self.discriminator(gt_enhanced)
             fake_scores = self.discriminator(pred_enhanced)
