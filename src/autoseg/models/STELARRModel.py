@@ -6,6 +6,9 @@ from ..utils import neighborhood
 
 class STELARRModel(torch.nn.Module):
     def __init__(self, unet: UNet, num_fmaps: int) -> None:
+        """
+            Selective-Task Enhancement, LSD, Affinity, Rine & Repeat (STELARR) Segmentation Model
+        """
         super(STELARRModel, self).__init__()
 
         self.unet: UNet = unet

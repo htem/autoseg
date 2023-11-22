@@ -21,7 +21,7 @@ from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood
 
 
-def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
+def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
                     raw_dataset:str="volumes/training_raw",
                     out_file:str="./raw_predictions.zarr",
                     iterations:int=100000, 
@@ -54,7 +54,8 @@ def stelarrr_train(raw_file:str="../../data/xpress-challenge.zarr",
         num_heads=3,
         padding="valid"
     )
-    model: STELARRModel = STELARRModel(unet, unet.ngf)
+    model: STELARRModel = STELARRModel(unet=unet, 
+                                       num_fmaps=unet.ngf)
     discriminator: NLayerDiscriminator3D = NLayerDiscriminator(ndims=3,) # NLayerDiscriminator3D
     loss: Weighted_MSELoss = Weighted_MSELoss(discrim=discriminator)#aff_lambda=0)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
