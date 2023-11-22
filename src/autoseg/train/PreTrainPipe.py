@@ -6,6 +6,7 @@ import numpy as numpy
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
 
+# TODO: add function to add data pointers to gp request
 
 def pretrain_pipe(training_pipeline: gp.ZarrSource, ) -> gp.ZarrSource: # TODO: fix args
     training_pipeline += gp.ElasticAugment(
