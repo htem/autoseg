@@ -23,7 +23,6 @@ from ..utils import neighborhood
 
 def aclsd_train(
     raw_file: str = "../../data/xpress-challenge.zarr",
-    raw_dataset: str = "volumes/training_raw",
     out_file: str = "./raw_predictions.zarr",
     iterations: int = 100000,
     warmup: int = 200000,
@@ -95,7 +94,7 @@ def aclsd_train(
         gp.ZarrSource(
             raw_file,
             {
-                raw: raw_dataset,
+                raw: "volumes/training_raw",
             },
             {
                 raw: gp.ArraySpec(interpolatable=True),
@@ -121,7 +120,7 @@ def aclsd_train(
     gt_source = gp.ZarrSource(
         raw_file,
         {
-            raw: raw_dataset,
+            raw: "volumes/training_raw",
             labels: f"volumes/training_gt_labels",
             labels_mask: f"volumes/training_labels_mask",
             unlabelled: f"volumes/training_unlabelled_mask",

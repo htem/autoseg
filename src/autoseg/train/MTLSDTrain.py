@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 torch.backends.cudnn.benchmark = True
 
 
-def mtlsd_train(iterations: int, data_store: str, voxel_size: int = 33):
+def mtlsd_train(iterations: int, raw_file: str, voxel_size: int = 33):
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
@@ -76,7 +76,7 @@ def mtlsd_train(iterations: int, data_store: str, voxel_size: int = 33):
     request.add(pred_lsds, output_size)
 
     source = gp.ZarrSource(
-        store=data_store,
+        store=raw_file,
         datasets={
             raw: f"volumes/training_raw",
             labels: f"volumes/training_gt_labels",
