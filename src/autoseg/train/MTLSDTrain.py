@@ -18,7 +18,9 @@ logging.basicConfig(level=logging.INFO)
 torch.backends.cudnn.benchmark = True
 
 
-def pipeline(iterations):
+def mtlsd_train(iterations:int,
+                data_store:str,
+                voxel_size:int=33):
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
@@ -51,7 +53,7 @@ def pipeline(iterations):
     output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[2:]
     print(input_shape, output_shape)
     
-    voxel_size = gp.Coordinate((33,) * 3)
+    voxel_size = gp.Coordinate((voxel_size,) * 3)
     input_size = gp.Coordinate(input_shape) * voxel_size
     output_size = gp.Coordinate(output_shape) * voxel_size
 
@@ -72,7 +74,7 @@ def pipeline(iterations):
     request.add(pred_lsds, output_size)
 
     source = gp.ZarrSource(
-        store="../../data/monkey_xnh.zarr",
+        store=data_store,
         datasets={
             raw: f"volumes/training_raw",
             labels: f"volumes/training_gt_labels",
