@@ -19,7 +19,7 @@ def predict_task(
     raw_file: str,
     raw_dataset: str,
     out_file: str = "raw_prediction.zarr",
-    out_datasets: list[tuple(str, int)] = [
+    out_datasets: list[tuple] = [
         (f"pred_affs", len(neighborhood)),
         (f"pred_lsds", 10),
         (f"pred_enhanced", 1),

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from NoiseBlocks import NoiseBlock, ParameterizedNoiseBlock
+from .NoiseBlocks import NoiseBlock, ParameterizedNoiseBlock
 
 
 class ConvPass(torch.nn.Module):

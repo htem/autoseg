@@ -45,22 +45,22 @@ def aclsd_train(
 
     # initial MTLSD UNet
     unet_ac = unet = UNet(
-        in_channels=1,
+        input_nc=1,
         ngf=12,
         fmap_inc_factor=3,
         downsample_factors=[(2, 2, 2), (2, 2, 2)],
         constant_upsample=True,
         num_heads=3,
-        padding="same",
+        padding_type="same",
     )
-    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.ngf)
+    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.output_nc)
     mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(
         params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
     )
 
     # second ACLSD UNet
-    aclsd_model = ACLSDModel(unet=unet_ac, num_fmaps=unet_ac.ngf)
+    aclsd_model = ACLSDModel(unet=unet_ac, num_fmaps=unet_ac.output_nc)
     aclsd_loss = WeightedACLSD_MSELoss()  # aff_lambda=0)
     aclsd_optimizer = torch.optim.Adam(
         aclsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)

@@ -46,15 +46,15 @@ def stelarr_train(
     real_pred = gp.ArrayKey("REAL_PRED")
 
     unet: UNet = UNet(
-        in_channels=1,
+        input_nc=1,
         ngf=12,
         fmap_inc_factor=3,
         downsample_factors=[(2, 2, 2), (2, 2, 2)],
         constant_upsample=True,
         num_heads=3,
-        padding="valid",
+        padding_type="valid",
     )
-    model: STELARRModel = STELARRModel(unet=unet, num_fmaps=unet.ngf)
+    model: STELARRModel = STELARRModel(unet=unet, num_fmaps=unet.output_nc)
     discriminator: NLayerDiscriminator3D = NLayerDiscriminator(
         ndims=3,
     )  # NLayerDiscriminator3D

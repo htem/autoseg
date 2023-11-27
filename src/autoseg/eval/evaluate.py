@@ -6,8 +6,8 @@ import logging
 
 logger: logging.Logger = logging.getLogger(__name__)
 
-from evaluate import run_eval
-from eval_db import Database
+from .eval_db import Database
+from .metrics import run_eval
 from ..postprocess import get_validation_segmentation
 
 
