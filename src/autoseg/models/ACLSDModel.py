@@ -6,6 +6,9 @@ from ..utils import neighborhood
 
 class ACLSDModel(torch.nn.Module):
     def __init__(self, unet: UNet, num_fmaps: int):
+        """
+           ACLSD (Auto-Context LSD) Segmentation Model
+        """
         super(ACLSDModel, self).__init__()
 
         self.unet: UNet = unet

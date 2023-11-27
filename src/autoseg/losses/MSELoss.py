@@ -35,7 +35,7 @@ class Weighted_MSELoss(torch.nn.Module):
         pred_enhanced=None,
         gt_enhanced=None,
     ):
-        # Calculate MSE loss for LSD and Affs
+        # calculate MSE loss for LSD and Affs
         lsd_loss = self._calc_loss(pred_lsds, gt_lsds, lsds_weights)
         aff_loss = self.aff_lambda * self._calc_loss(pred_affs, gt_affs, affs_weights)
 

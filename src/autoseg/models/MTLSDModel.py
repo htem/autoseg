@@ -6,6 +6,9 @@ from ..utils import neighborhood
 
 class MTLSDModel(torch.nn.Module):
     def __init__(self, unet: UNet, num_fmaps: int):
+        """
+           MTLSD (Multi-Task LSD) Segmentation Model
+        """
         super(MTLSDModel, self).__init__()
 
         self.unet: UNet = unet
