@@ -14,4 +14,4 @@ def train_model(
         case "aclsd":
             aclsd_train(iterations=iterations, raw_file=raw_file, warmup=warmup)
         case "stelarr":
-            raise NotImplementedError
+            stelarr_train(iterations=iterations, raw_file=raw_file, warmup=warmup)

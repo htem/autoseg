@@ -23,7 +23,6 @@ from ..utils import neighborhood
 
 def stelarr_train(
     raw_file: str = "../../data/xpress-challenge.zarr",
-    raw_dataset: str = "volumes/training_raw",
     out_file: str = "./raw_predictions.zarr",
     iterations: int = 100000,
     warmup: int = 200000,
@@ -80,7 +79,7 @@ def stelarr_train(
     predicted_source = (
         gp.ZarrSource(
             raw_file,
-            {raw: raw_dataset, gt_enhanced: "volumes/training_gt_enhanced"},
+            {raw: "volumes/training_raw", gt_enhanced: "volumes/training_gt_enhanced"},
             {
                 raw: gp.ArraySpec(interpolatable=True),
                 gt_enhanced: gp.ArraySpec(interpolatable=False),
@@ -106,7 +105,7 @@ def stelarr_train(
     gt_source = gp.ZarrSource(
         raw_file,
         {
-            raw: raw_dataset,
+            raw: "volumes/training_raw",
             labels: f"volumes/training_gt_labels",
             labels_mask: f"volumes/training_labels_mask",
             unlabelled: f"volumes/training_unlabelled_mask",
