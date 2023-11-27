@@ -21,14 +21,14 @@ from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood
 
 
-def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
-                    raw_dataset:str="volumes/training_raw",
-                    out_file:str="./raw_predictions.zarr",
-                    iterations:int=100000, 
-                    warmup:int=200000, 
-                    save_every:int=25000,
-    ) -> None:
-    
+def stelarr_train(
+    raw_file: str = "../../data/xpress-challenge.zarr",
+    raw_dataset: str = "volumes/training_raw",
+    out_file: str = "./raw_predictions.zarr",
+    iterations: int = 100000,
+    warmup: int = 200000,
+    save_every: int = 25000,
+) -> None:
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
@@ -36,7 +36,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
     pred_affs = gp.ArrayKey("PRED_AFFS")
     gt_affs = gp.ArrayKey("GT_AFFS")
     affs_weights = gp.ArrayKey("AFFS_WEIGHTS")
-    gt_affs_mask = gp.ArrayKey("AFFS_MASK") 
+    gt_affs_mask = gp.ArrayKey("AFFS_MASK")
     pred_lsds = gp.ArrayKey("PRED_LSDS")
     gt_lsds = gp.ArrayKey("GT_LSDS")
     gt_lsds_mask = gp.ArrayKey("GT_LSDS_MASK")
@@ -49,19 +49,21 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
         in_channels=1,
         ngf=12,
         fmap_inc_factor=3,
-        downsample_factors=[(2,2,2),(2,2,2)],
+        downsample_factors=[(2, 2, 2), (2, 2, 2)],
         constant_upsample=True,
         num_heads=3,
-        padding="valid"
+        padding="valid",
     )
-    model: STELARRModel = STELARRModel(unet=unet, 
-                                       num_fmaps=unet.ngf)
-    discriminator: NLayerDiscriminator3D = NLayerDiscriminator(ndims=3,) # NLayerDiscriminator3D
-    loss: Weighted_MSELoss = Weighted_MSELoss(discrim=discriminator)#aff_lambda=0)
+    model: STELARRModel = STELARRModel(unet=unet, num_fmaps=unet.ngf)
+    discriminator: NLayerDiscriminator3D = NLayerDiscriminator(
+        ndims=3,
+    )  # NLayerDiscriminator3D
+    loss: Weighted_MSELoss = Weighted_MSELoss(discrim=discriminator)  # aff_lambda=0)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
-    discriminator_optimizer = torch.optim.Adam(discriminator.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
+    discriminator_optimizer = torch.optim.Adam(
+        discriminator.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
+    )
     discriminator_loss: GANLoss = GANLoss()
-
 
     increase = 8 * 3
     input_shape = [100] * 3
@@ -78,10 +80,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
     predicted_source = (
         gp.ZarrSource(
             raw_file,
-            {
-                raw: raw_dataset,
-                gt_enhanced: "volumes/training_gt_enhanced"
-            },
+            {raw: raw_dataset, gt_enhanced: "volumes/training_gt_enhanced"},
             {
                 raw: gp.ArraySpec(interpolatable=True),
                 gt_enhanced: gp.ArraySpec(interpolatable=False),
@@ -123,9 +122,8 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
     )
     gt_source += gp.MergeProvider()
     gt_source += gp.RandomLocation(mask=labels_mask, min_masked=0.5)
-   
+
     def get_training_pipeline():
-        
         request = gp.BatchRequest()
 
         request.add(raw, input_size)
@@ -163,7 +161,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
 
         training_pipeline += gp.IntensityAugment(raw, 0.9, 1.1, -0.1, 0.1)
 
-        training_pipeline += SmoothArray(raw, (0.0,1.0))
+        training_pipeline += SmoothArray(raw, (0.0, 1.0))
 
         training_pipeline += AddLocalShapeDescriptor(
             labels,
@@ -183,7 +181,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
             labels_mask=labels_mask,
             unlabelled=unlabelled,
             affinities_mask=gt_affs_mask,
-            dtype=np.float32
+            dtype=np.float32,
         )
 
         training_pipeline += gp.BalanceLabels(gt_affs, affs_weights, mask=gt_affs_mask)
@@ -214,10 +212,10 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
             log_dir="log/mt_log",
         )
 
-        # two train nodes, use GANloss 
+        # two train nodes, use GANloss
         training_pipeline += gp.torch.Train(
             discriminator,
-            discriminator_loss, # GAN Loss Y with lambda
+            discriminator_loss,  # GAN Loss Y with lambda
             discriminator_optimizer,
             inputs={"input": gt_enhanced},
             loss_inputs={
@@ -230,7 +228,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
         )
         training_pipeline += gp.torch.Train(
             discriminator,
-            discriminator_loss, # GAN Loss X with lambda
+            discriminator_loss,  # GAN Loss X with lambda
             discriminator_optimizer,
             inputs={"input": pred_enhanced},
             loss_inputs={
@@ -242,7 +240,9 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
             log_dir="log/discrim_log",
         )
 
-        training_pipeline += gp.Squeeze([raw, gt_lsds, pred_lsds, gt_affs, pred_affs, gt_enhanced, pred_enhanced])
+        training_pipeline += gp.Squeeze(
+            [raw, gt_lsds, pred_lsds, gt_affs, pred_affs, gt_enhanced, pred_enhanced]
+        )
 
         training_pipeline += gp.Snapshot(
             dataset_names={
@@ -257,9 +257,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
                 gt_enhanced: "gt_enhanced",
                 pred_enhanced: "pred_enhanced",
             },
-            dataset_dtypes={
-                gt_affs: np.float32
-            },
+            dataset_dtypes={gt_affs: np.float32},
             output_filename="batch_{latest}.zarr",
             every=save_every,
         )
@@ -278,10 +276,7 @@ def stelarr_train(raw_file:str="../../data/xpress-challenge.zarr",
         logging.info("PIPELINE IS SET . . .")
         logging.info(gt_source)
         logging.info(training_pipeline)
-        pipeline = (
-            gt_source
-            + training_pipeline
-        )
+        pipeline = gt_source + training_pipeline
 
         with gp.build(pipeline):
             for i in trange(warmup):

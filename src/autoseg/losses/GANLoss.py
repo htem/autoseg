@@ -58,7 +58,7 @@ class GANLoss(torch.nn.Module):
             prediction = real_pred
         else:
             target_is_real = False
-            prediction = fake_pred 
+            prediction = fake_pred
 
         if self.gan_mode in ["lsgan", "vanilla"]:
             target_tensor = self.get_target_tensor(prediction, target_is_real)

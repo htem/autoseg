@@ -10,7 +10,6 @@ class SmoothArray(gp.BatchFilter):
         self.range = blur_range
 
     def process(self, batch, request):
-
         array = batch[self.array].data
 
         assert len(array.shape) == 3
@@ -21,8 +20,8 @@ class SmoothArray(gp.BatchFilter):
         for z in range(array.shape[0]):
             array_sec = array[z]
 
-            array[z] = np.array(
-                    gaussian_filter(array_sec, sigma=sigma)
-            ).astype(array_sec.dtype)
+            array[z] = np.array(gaussian_filter(array_sec, sigma=sigma)).astype(
+                array_sec.dtype
+            )
 
         batch[self.array].data = array

@@ -16,19 +16,20 @@ def segment_and_validate(
     checkpoint_num=250000,
     setup_num="1738",
 ) -> dict:
-
     logger.info(
         msg=f"Segmenting checkpoint {model_checkpoint}, aff_model checkpoint {checkpoint_num}..."
     )
 
     success: bool = get_validation_segmentation(iteration=checkpoint_num)
     if success:
-        print("-----------------------------\nSuccessfully returned validation segmentation . . . now validating\n----------------------------------------------")
+        print(
+            "-----------------------------\nSuccessfully returned validation segmentation . . . now validating\n----------------------------------------------"
+        )
         try:
             logger.info(
                 f"Validating checkpoint {model_checkpoint}, aff_model checkpoint {checkpoint_num}..."
             )
-            score_dict:dict = validate(
+            score_dict: dict = validate(
                 checkpoint=model_checkpoint,
                 threshold=float(f"{checkpoint_num}.{setup_num}"),
                 ds="segmentation_mws",
@@ -52,8 +53,8 @@ def segment_and_validate(
 def validate(
     checkpoint,
     threshold,
-    offset:str= "3960,3960,3960",
-    roi_shape:str= "31680,31680,31680",
+    offset: str = "3960,3960,3960",
+    roi_shape: str = "31680,31680,31680",
     skel="../../data/XPRESS_validation_skels.npz",
     zarr="./validation.zarr",
     h5="validation.h5",

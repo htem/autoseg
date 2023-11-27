@@ -18,9 +18,7 @@ logging.basicConfig(level=logging.INFO)
 torch.backends.cudnn.benchmark = True
 
 
-def mtlsd_train(iterations:int,
-                data_store:str,
-                voxel_size:int=33):
+def mtlsd_train(iterations: int, data_store: str, voxel_size: int = 33):
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
@@ -38,21 +36,25 @@ def mtlsd_train(iterations:int,
         in_channels=1,
         ngf=12,
         fmap_inc_factor=3,
-        downsample_factors=[(2,2,2),(2,2,2)],
+        downsample_factors=[(2, 2, 2), (2, 2, 2)],
         constant_upsample=True,
         num_heads=3,
-        padding="same"
+        padding="same",
     )
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.ngf)
-    mtlsd_loss = Weighted_MSELoss()#aff_lambda=0)
-    mtlsd_optimizer = torch.optim.Adam(params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
+    mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
+    mtlsd_optimizer = torch.optim.Adam(
+        params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
+    )
 
     increase = 8 * 3
 
     input_shape = [100] * 3
-    output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[2:]
+    output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[
+        2:
+    ]
     print(input_shape, output_shape)
-    
+
     voxel_size = gp.Coordinate((voxel_size,) * 3)
     input_size = gp.Coordinate(input_shape) * voxel_size
     output_size = gp.Coordinate(output_shape) * voxel_size
@@ -113,7 +115,7 @@ def mtlsd_train(iterations:int,
 
     pipeline += gp.IntensityAugment(raw, 0.9, 1.1, -0.1, 0.1)
 
-    pipeline += SmoothArray(raw, (0.6,1.0))
+    pipeline += SmoothArray(raw, (0.6, 1.0))
 
     pipeline += AddLocalShapeDescriptor(
         segmentation=labels,
@@ -133,7 +135,7 @@ def mtlsd_train(iterations:int,
         labels_mask=labels_mask,
         unlabelled=unlabelled,
         affinities_mask=gt_affs_mask,
-        dtype=np.float32
+        dtype=np.float32,
     )
 
     pipeline += gp.BalanceLabels(gt_affs, affs_weights, mask=gt_affs_mask)

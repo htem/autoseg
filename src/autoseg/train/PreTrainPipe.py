@@ -8,7 +8,10 @@ from ..gp_filters.smooth_array import SmoothArray
 
 # TODO: add function to add data pointers to gp request
 
-def pretrain_pipe(training_pipeline: gp.ZarrSource, ) -> gp.ZarrSource: # TODO: fix args
+
+def pretrain_pipe(
+    training_pipeline: gp.ZarrSource,
+) -> gp.ZarrSource:  # TODO: fix args
     training_pipeline += gp.ElasticAugment(
         control_point_spacing=[30, 30, 30],
         jitter_sigma=[2, 2, 2],
@@ -22,7 +25,7 @@ def pretrain_pipe(training_pipeline: gp.ZarrSource, ) -> gp.ZarrSource: # TODO: 
 
     training_pipeline += gp.IntensityAugment(raw, 0.9, 1.1, -0.1, 0.1)
 
-    training_pipeline += SmoothArray(raw, (0.0,1.0))
+    training_pipeline += SmoothArray(raw, (0.0, 1.0))
 
     training_pipeline += AddLocalShapeDescriptor(
         labels,
@@ -42,6 +45,6 @@ def pretrain_pipe(training_pipeline: gp.ZarrSource, ) -> gp.ZarrSource: # TODO: 
         labels_mask=labels_mask,
         unlabelled=unlabelled,
         affinities_mask=gt_affs_mask,
-        dtype=np.float32
-        )
+        dtype=np.float32,
+    )
     return training_pipeline

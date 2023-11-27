@@ -185,7 +185,6 @@ def get_voi(segment_array, gt_graph):
 
 
 def run_eval(skeleton_file, segmentation_file, segmentation_ds, roi, downsampling=None):
-
     # load segmentation
     segment_array = daisy.open_ds(segmentation_file, segmentation_ds)
     if roi is None:

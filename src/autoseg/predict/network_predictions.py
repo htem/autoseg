@@ -12,22 +12,27 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
 def predict_task(
     model,
-    model_type:str,
-    iteration:int,
-    raw_file:str,
-    raw_dataset:str,
-    out_file:str="raw_prediction.zarr",
-    out_datasets:list[tuple(str, int)]=[(f"pred_affs", len(neighborhood)), (f"pred_lsds", 10), (f"pred_enhanced", 1)],
-    num_workers:int=1,
-    n_gpu:int=1,
-    model_path:str="./",
-    voxel_size:int=33,
+    model_type: str,
+    iteration: int,
+    raw_file: str,
+    raw_dataset: str,
+    out_file: str = "raw_prediction.zarr",
+    out_datasets: list[tuple(str, int)] = [
+        (f"pred_affs", len(neighborhood)),
+        (f"pred_lsds", 10),
+        (f"pred_enhanced", 1),
+    ],
+    num_workers: int = 1,
+    n_gpu: int = 1,
+    model_path: str = "./",
+    voxel_size: int = 33,
 ) -> None:
     if type(iteration) == str and "latest" in iteration:
-        model_path = glob.glob(os.path.join(model_path, f"{model_type}_model_checkpoint_*"))
+        model_path = glob.glob(
+            os.path.join(model_path, f"{model_type}_model_checkpoint_*")
+        )
         model_path.sort(key=os.path.getmtime)
         model_path = os.path.abspath(model_path[-1])
         print(f"Model path: {model_path}")
@@ -88,29 +93,33 @@ def predict_task(
         scan_request.add(pred_affs, output_size)
         scan_request.add(pred_lsds, output_size)
         outputs = {
-                    0: pred_lsds,
-                    1: pred_affs,
+            0: pred_lsds,
+            1: pred_affs,
         }
         ds_names: dict = {
-                pred_affs: out_datasets[0][0],
-                pred_lsds: out_datasets[1][0],
+            pred_affs: out_datasets[0][0],
+            pred_lsds: out_datasets[1][0],
         }
-        daisy_request: dict = {raw: "read_roi", pred_lsds: "write_roi", pred_affs: "write_roi"}
+        daisy_request: dict = {
+            raw: "read_roi",
+            pred_lsds: "write_roi",
+            pred_affs: "write_roi",
+        }
 
         if "stelarr" in model_type.lower():
             scan_request.add(pred_enhanced, output_size)
-            outputs: dict = {
-                0: pred_lsds,
-                1: pred_affs,
-                2: pred_enhanced
-            }
+            outputs: dict = {0: pred_lsds, 1: pred_affs, 2: pred_enhanced}
             ds_names: dict = {
                 pred_affs: out_datasets[0][0],
                 pred_lsds: out_datasets[1][0],
                 pred_enhanced: out_datasets[2][0],
-
             }
-            daisy_request: dict = {raw: "read_roi", pred_lsds: "write_roi", pred_affs: "write_roi", pred_enhanced: "write_roi"}
+            daisy_request: dict = {
+                raw: "read_roi",
+                pred_lsds: "write_roi",
+                pred_affs: "write_roi",
+                pred_enhanced: "write_roi",
+            }
 
         # predict and write the initial pass
         pred = gp.torch.Predict(
@@ -127,9 +136,8 @@ def predict_task(
 
         if num_workers > 1:
             worker_id = int(daisy.Context.from_env()["worker_id"])
-            logger.info(worker_id%n_gpu)
+            logger.info(worker_id % n_gpu)
             os.environ["CUDA_VISISBLE_DEVICES"] = f"{worker_id % n_gpu}"
-
 
             scan = gp.DaisyRequestBlocks(
                 scan_request,
@@ -183,7 +191,6 @@ def predict_task(
         with gp.build(pipeline):
             batch = pipeline.request_batch(predict_request)
 
-
     if num_workers > 1:
         task = daisy.Task(
             "PredictBlockwiseTask",
@@ -203,4 +210,3 @@ def predict_task(
 
     else:
         predict()
-

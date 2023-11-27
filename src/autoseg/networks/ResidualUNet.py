@@ -54,7 +54,6 @@ class ConvPass(torch.nn.Module):
         layers = []
 
         for i, kernel_size in enumerate(kernel_sizes):
-
             self.dims = len(kernel_size)
 
             conv = {2: torch.nn.Conv2d, 3: torch.nn.Conv3d, 4: Conv4d}[self.dims]
@@ -257,7 +256,6 @@ class Upsample(torch.nn.Module):
         crop_factor=None,
         next_conv_kernel_sizes=None,
     ):
-
         super(Upsample, self).__init__()
 
         if crop_factor is not None:
@@ -270,7 +268,6 @@ class Upsample(torch.nn.Module):
         self.dims = len(scale_factor)
 
         if mode == "transposed_conv":
-
             up = {2: torch.nn.ConvTranspose2d, 3: torch.nn.ConvTranspose3d}[self.dims]
 
             self.up = up(
@@ -278,7 +275,6 @@ class Upsample(torch.nn.Module):
             )
 
         else:
-
             self.up = torch.nn.Upsample(scale_factor=scale_factor, mode=mode)
 
     def crop_to_factor(self, x, factor, kernel_sizes):
@@ -320,7 +316,6 @@ class Upsample(torch.nn.Module):
         )
 
         if target_spatial_shape != spatial_shape:
-
             assert all(
                 ((t > c) for t, c in zip(target_spatial_shape, convolution_crop))
             ), (
@@ -345,7 +340,6 @@ class Upsample(torch.nn.Module):
         return x[slices]
 
     def forward(self, f_left, g_out):
-
         g_up = self.up(g_out)
 
         if self.crop_factor is not None:
@@ -564,7 +558,6 @@ class ResidualUNet(torch.nn.Module):
 
         # left downsample layers
         if downsample_method.lower() == "max":
-
             self.l_down = nn.ModuleList(
                 [
                     MaxDownsample(downsample_factors[level])
@@ -573,7 +566,6 @@ class ResidualUNet(torch.nn.Module):
             )
 
         elif downsample_method.lower() == "convolve":
-
             self.l_down = nn.ModuleList(
                 [
                     ConvDownsample(
@@ -590,7 +582,6 @@ class ResidualUNet(torch.nn.Module):
             )
 
         else:
-
             raise RuntimeError(
                 f'Unknown downsampling method {downsample_method}. Use "max" or "convolve" instead.'
             )
@@ -642,7 +633,6 @@ class ResidualUNet(torch.nn.Module):
         )
 
     def rec_forward(self, level, f_in):
-
         # index of level in layer arrays
         i = self.num_levels - level - 1
 
@@ -651,13 +641,11 @@ class ResidualUNet(torch.nn.Module):
 
         # end of recursion
         if level == 0:
-
             if self.noise_layer is not None:
                 f_left = self.noise_layer(f_left)
             fs_out = [f_left] * self.num_heads
 
         else:
-
             # down
             g_in = self.l_down[i](f_left)
 
@@ -686,7 +674,6 @@ class ResidualUNet(torch.nn.Module):
         return x[slices]
 
     def forward(self, x):
-
         y = self.rec_forward(self.num_levels - 1, x)
         if self.padding_type.lower() == "valid":
             x = self.crop(x, y[0].size()[-self.ndims :])

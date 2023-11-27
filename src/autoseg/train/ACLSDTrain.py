@@ -21,13 +21,14 @@ from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood
 
 
-def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
-                    raw_dataset:str="volumes/training_raw",
-                    out_file:str="./raw_predictions.zarr",
-                    iterations:int=100000, 
-                    warmup:int=200000, 
-                    save_every:int=25000,
-    ) -> None:    
+def aclsd_train(
+    raw_file: str = "../../data/xpress-challenge.zarr",
+    raw_dataset: str = "volumes/training_raw",
+    out_file: str = "./raw_predictions.zarr",
+    iterations: int = 100000,
+    warmup: int = 200000,
+    save_every: int = 25000,
+) -> None:
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
@@ -37,7 +38,7 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
     gt_affs = gp.ArrayKey("GT_AFFS")
     affs_weights = gp.ArrayKey("AFFS_WEIGHTS")
     affs_weights_ac = gp.ArrayKey("AFFS_WEIGHTS_AC")
-    gt_affs_mask = gp.ArrayKey("AFFS_MASK") 
+    gt_affs_mask = gp.ArrayKey("AFFS_MASK")
     pred_lsds = gp.ArrayKey("PRED_LSDS")
     gt_lsds = gp.ArrayKey("GT_LSDS")
     gt_lsds_mask = gp.ArrayKey("GT_LSDS_MASK")
@@ -47,24 +48,30 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
         in_channels=1,
         ngf=12,
         fmap_inc_factor=3,
-        downsample_factors=[(2,2,2),(2,2,2)],
+        downsample_factors=[(2, 2, 2), (2, 2, 2)],
         constant_upsample=True,
         num_heads=3,
-        padding="same"
+        padding="same",
     )
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.ngf)
-    mtlsd_loss = Weighted_MSELoss()#aff_lambda=0)
-    mtlsd_optimizer = torch.optim.Adam(params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
+    mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
+    mtlsd_optimizer = torch.optim.Adam(
+        params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
+    )
 
     # second ACLSD UNet
     aclsd_model = ACLSDModel(unet=unet_ac, num_fmaps=unet_ac.ngf)
-    aclsd_loss = WeightedACLSD_MSELoss()#aff_lambda=0)
-    aclsd_optimizer = torch.optim.Adam(aclsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
+    aclsd_loss = WeightedACLSD_MSELoss()  # aff_lambda=0)
+    aclsd_optimizer = torch.optim.Adam(
+        aclsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
+    )
 
     # input/output for MTLSD
     increase = 8 * 3
     input_shape = [64] * 3
-    output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[2:]
+    output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[
+        2:
+    ]
     print(input_shape, output_shape)
 
     voxel_size = gp.Coordinate((33,) * 3)
@@ -75,7 +82,9 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
 
     # input/output for ACLSD (second pass)
     input_shape_ac = [64] * 3
-    output_shape_ac = aclsd_model.forward(torch.empty(size=[1, 10] + input_shape_ac))[0].shape[1:]
+    output_shape_ac = aclsd_model.forward(torch.empty(size=[1, 10] + input_shape_ac))[
+        0
+    ].shape[1:]
     print(input_shape_ac, output_shape_ac)
 
     input_size_ac = gp.Coordinate(input_shape_ac) * voxel_size
@@ -128,9 +137,8 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
     # add additional ZarrSources for each training volume across V1/V2/white matter
     gt_source += gp.MergeProvider()
     gt_source += gp.RandomLocation(mask=labels_mask, min_masked=0.5)
-   
+
     def get_training_pipeline():
-        
         request = gp.BatchRequest()
 
         request.add(raw, input_size)
@@ -166,7 +174,7 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
 
         training_pipeline += gp.IntensityAugment(raw, 0.9, 1.1, -0.1, 0.1)
 
-        training_pipeline += SmoothArray(raw, (0.0,1.0))
+        training_pipeline += SmoothArray(raw, (0.0, 1.0))
 
         training_pipeline += AddLocalShapeDescriptor(
             labels,
@@ -186,7 +194,7 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
             labels_mask=labels_mask,
             unlabelled=unlabelled,
             affinities_mask=gt_affs_mask,
-            dtype=np.float32
+            dtype=np.float32,
         )
 
         training_pipeline += gp.BalanceLabels(gt_affs, affs_weights, mask=gt_affs_mask)
@@ -215,7 +223,9 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
             log_dir="log/log_mtlsd",
         )
 
-        training_pipeline += gp.Squeeze(arrays=[raw, gt_lsds, pred_lsds, gt_affs, pred_affs])
+        training_pipeline += gp.Squeeze(
+            arrays=[raw, gt_lsds, pred_lsds, gt_affs, pred_affs]
+        )
 
         training_pipeline += gp.Snapshot(
             dataset_names={
@@ -226,18 +236,18 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
                 pred_lsds: "pred_lsds",
                 gt_affs: "gt_affs",
                 pred_affs: "pred_affs",
-                affs_weights: "affs_weights"
+                affs_weights: "affs_weights",
             },
-            dataset_dtypes={
-                gt_affs: np.float32
-            },
+            dataset_dtypes={gt_affs: np.float32},
             output_filename="mtlsd_batch_{iteration}.zarr",
             every=save_every,
         )
 
         training_pipeline += gp.Unsqueeze([gt_affs])
 
-        training_pipeline += gp.BalanceLabels(gt_affs, affs_weights_ac, mask=gt_affs_mask)
+        training_pipeline += gp.BalanceLabels(
+            gt_affs, affs_weights_ac, mask=gt_affs_mask
+        )
 
         training_pipeline += gp.Stack(1)
 
@@ -256,7 +266,7 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
             save_every=save_every,
             log_dir="log/log_aclsd",
         )
-        
+
         training_pipeline += gp.Squeeze(arrays=[gt_affs, pred_affs_ac])
 
         training_pipeline += gp.Snapshot(
@@ -267,11 +277,9 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
                 unlabelled: "unlabelled",
                 gt_affs: "gt_affs",
                 pred_affs_ac: "pred_affs_ac",
-                affs_weights_ac: "affs_weights_ac"
+                affs_weights_ac: "affs_weights_ac",
             },
-            dataset_dtypes={
-                gt_affs: np.float32
-            },
+            dataset_dtypes={gt_affs: np.float32},
             output_filename="aclsd_batch_{iteration}.zarr",
             every=save_every,
         )
@@ -291,10 +299,7 @@ def aclsd_train(raw_file:str="../../data/xpress-challenge.zarr",
         logging.info("PIPELINE IS SET . . .")
         logging.info(gt_source)
         logging.info(training_pipeline)
-        pipeline = (
-            gt_source
-            + training_pipeline
-        )
+        pipeline = gt_source + training_pipeline
 
         with gp.build(pipeline):
             for i in trange(warmup):
