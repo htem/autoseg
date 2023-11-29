@@ -44,7 +44,7 @@ def aclsd_train(
 
     # initial MTLSD UNet
     unet = setup_unet(downsample_factors=[(2, 2, 2), (2, 2, 2)], padding="same")
-    unet_ac = setup_unet(downsample_factors=[(2, 2, 2), (2, 2, 2)], padding="same", num_heads=1)
+    unet_ac = setup_unet(in_channels=10, downsample_factors=[(2, 2, 2), (2, 2, 2)], padding="same", num_heads=1)
 
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.out_channels)
     mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
