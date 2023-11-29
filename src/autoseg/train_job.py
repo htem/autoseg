@@ -5,11 +5,13 @@ def train_model(
     model_type: str = "MTLSD",
     iterations: int = 100000,
     warmup: int = 100000,
-    raw_file: str = "path/to/.zarr/or/.n5",
+    raw_file: str = "path/to/.zarr/or/.n5/or/.tiff",
     out_file: str = "./raw_predictions.zarr",
     voxel_size: int = 33,
     save_every=2500,
 ) -> None:
+    
+    # TODO: call ztools to rewrite .tiff file to zarr format
     model_type = model_type.lower()
     if model_type == "mtlsd":
         mtlsd_train(
