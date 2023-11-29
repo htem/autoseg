@@ -249,7 +249,7 @@ def stelarr_train(
                 pred_enhanced: "pred_enhanced",
             },
             dataset_dtypes={gt_affs: np.float32},
-            output_filename="batch_{latest}.zarr",
+            output_filename="batch_latest.zarr",
             every=save_every,
         )
 

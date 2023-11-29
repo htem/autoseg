@@ -180,3 +180,8 @@ cython_debug/
 
 # Go workspace file
 go.work
+
+
+# autoseg specifc
+log/
+snapshots/
