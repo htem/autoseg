@@ -260,7 +260,12 @@ def stelarr_train(
         warmup is None
     ):  # Allows to do initial segmentation with existing model checkpoints
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
+        get_skel_correct_segmentation(
+            predict_affs=True,
+            raw_file=raw_file,
+            out_file=out_file,
+            voxel_size=voxel_size,
+        )
         model.train()
     elif warmup > 0:
         training_pipeline, request = get_training_pipeline()
@@ -274,12 +279,17 @@ def stelarr_train(
                 pipeline.request_batch(request)
 
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
+        get_skel_correct_segmentation(
+            predict_affs=True,
+            raw_file=raw_file,
+            out_file=out_file,
+            voxel_size=voxel_size,
+        )
         model.train()
 
     # Add segmentation predictions to training pipeline
     # Then repeat, scaling up the prediction usage
-    for ratio in [0,1, 0.2, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
+    for ratio in [0, 1, 0.2, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
         print(f"Rinse & Repeat @ ratio: {ratio}")
         training_pipeline, request = get_training_pipeline()
         pipeline = (gt_source, predicted_source) + gp.RandomProvider(
@@ -291,5 +301,10 @@ def stelarr_train(
                 pipeline.request_batch(request)
 
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
+        get_skel_correct_segmentation(
+            predict_affs=True,
+            raw_file=raw_file,
+            out_file=out_file,
+            voxel_size=voxel_size,
+        )
         model.train()

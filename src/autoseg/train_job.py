@@ -12,8 +12,27 @@ def train_model(
 ) -> None:
     model_type = model_type.lower()
     if model_type == "mtlsd":
-        mtlsd_train(iterations=iterations, raw_file=raw_file, voxel_size=voxel_size, save_every=save_every)
+        mtlsd_train(
+            iterations=iterations,
+            raw_file=raw_file,
+            voxel_size=voxel_size,
+            save_every=save_every,
+        )
     elif model_type == "aclsd":
-        aclsd_train(iterations=iterations, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size, warmup=warmup, save_every=save_every)
+        aclsd_train(
+            iterations=iterations,
+            raw_file=raw_file,
+            out_file=out_file,
+            voxel_size=voxel_size,
+            warmup=warmup,
+            save_every=save_every,
+        )
     elif model_type == "stelarr":
-        stelarr_train(iterations=iterations, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size, warmup=warmup, save_every=save_every)
+        stelarr_train(
+            iterations=iterations,
+            raw_file=raw_file,
+            out_file=out_file,
+            voxel_size=voxel_size,
+            warmup=warmup,
+            save_every=save_every,
+        )

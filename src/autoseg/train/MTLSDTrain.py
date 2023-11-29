@@ -18,7 +18,8 @@ logging.basicConfig(level=logging.INFO)
 torch.backends.cudnn.benchmark = True
 
 
-def mtlsd_train(raw_file: str = "../../data/xpress-challenge.zarr",
+def mtlsd_train(
+    raw_file: str = "../../data/xpress-challenge.zarr",
     voxel_size: int = 33,
     iterations: int = 100000,
     save_every: int = 25000,
