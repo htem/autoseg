@@ -13,7 +13,7 @@ torch.backends.cudnn.benchmark = True
 from ..models.ACLSDModel import ACLSDModel
 from ..models.MTLSDModel import MTLSDModel
 from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
-from ..networks.UNet import UNet
+from ..networks.FLibUNet import setup_unet
 from ..losses.MSELoss import Weighted_MSELoss
 from ..losses.ACLSDLoss import WeightedACLSD_MSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
@@ -43,15 +43,9 @@ def aclsd_train(
     gt_lsds_mask = gp.ArrayKey("GT_LSDS_MASK")
 
     # initial MTLSD UNet
-    unet_ac = unet = UNet(
-        input_nc=1,
-        ngf=12,
-        fmap_inc_factor=3,
-        downsample_factors=[(2, 2, 2), (2, 2, 2)],
-        constant_upsample=True,
-        num_heads=3,
-        padding_type="same",
-    )
+    unet = setup_unet(downsample_factors=[(2, 2, 2), (2, 2, 2)], padding="same")
+    unet_ac = setup_unet(downsample_factors=[(2, 2, 2), (2, 2, 2)], padding="same", num_heads=1)
+
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.output_nc)
     mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(
