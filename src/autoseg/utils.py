@@ -23,8 +23,8 @@ neighborhood: list[list[int]] = [
 ]
 
 def tiff_to_zarr(tiff_file:str="path/to/.tiff",
-                out_file:str="path/to/.zarr",
-                out_ds:str="path/to/volume",
+                out_file:str="tiffAsZarr.zarr",
+                out_ds:str="volumes/raw",
                 voxel_size: int = 33,
                 offset: int = 0,
                 dtype=np.uint8,

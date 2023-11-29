@@ -1,4 +1,5 @@
 from .train import mtlsd_train, aclsd_train, stelarr_train
+from .utils import tiff_to_zarr
 
 
 def train_model(
@@ -12,6 +13,9 @@ def train_model(
 ) -> None:
     
     # TODO: call ztools to rewrite .tiff file to zarr format
+    if raw_file.endswith(".tiff"):
+        tiff_to_zarr(tiff_file=raw_file)
+        # raw_file: str = TODO: reassign raw file name
     model_type = model_type.lower()
     if model_type == "mtlsd":
         mtlsd_train(
