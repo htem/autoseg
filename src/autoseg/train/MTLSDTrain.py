@@ -7,7 +7,7 @@ from tqdm import tqdm
 from lsd.train.gp import AddLocalShapeDescriptor
 
 from ..models.MTLSDModel import MTLSDModel
-from ..networks.UNet import UNet
+from ..networks.FLibUNet import setup_unet
 from ..losses.MSELoss import Weighted_MSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
@@ -32,15 +32,9 @@ def mtlsd_train(iterations: int, raw_file: str, voxel_size: int = 33):
     pred_lsds = gp.ArrayKey("PRED_LSDS")
 
     # initial MTLSD UNet
-    unet_ac = unet = UNet(
-        input_nc=1,
-        ngf=12,
-        fmap_inc_factor=3,
-        downsample_factors=[(2, 2, 2), (2, 2, 2)],
-        constant_upsample=True,
-        num_heads=3,
-        padding_type="same",
-    )
+    unet = setup_unet()
+
+
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.output_nc)
     mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(
