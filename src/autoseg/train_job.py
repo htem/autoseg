@@ -1,5 +1,6 @@
 from .train import mtlsd_train, aclsd_train, stelarr_train
 
+
 def train_model(
     model_type: str = "MTLSD",
     iterations: int = 100000,
