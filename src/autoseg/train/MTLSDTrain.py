@@ -50,7 +50,7 @@ def mtlsd_train(raw_file: str = "../../data/xpress-challenge.zarr",
     output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[
         2:
     ]
-    print(input_shape, output_shape)
+    logging.info(input_shape, output_shape)
 
     voxel_size = gp.Coordinate((voxel_size,) * 3)
     input_size = gp.Coordinate(input_shape) * voxel_size

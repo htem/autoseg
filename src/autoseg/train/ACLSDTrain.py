@@ -24,6 +24,7 @@ from ..utils import neighborhood
 def aclsd_train(
     raw_file: str = "../../data/xpress-challenge.zarr",
     out_file: str = "./raw_predictions.zarr",
+    voxel_size: int = 33,
     iterations: int = 100000,
     warmup: int = 200000,
     save_every: int = 25000,
@@ -65,14 +66,13 @@ def aclsd_train(
     )
 
     # input/output for MTLSD
-    increase = 8 * 3
     input_shape = [64] * 3
     output_shape = mtlsd_model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[
         2:
     ]
-    print(input_shape, output_shape)
+    logging.info(input_shape, output_shape)
 
-    voxel_size = gp.Coordinate((33,) * 3)
+    voxel_size = gp.Coordinate((voxel_size,) * 3)
     input_size = gp.Coordinate(input_shape) * voxel_size
     output_size = gp.Coordinate(output_shape) * voxel_size
 
@@ -83,7 +83,7 @@ def aclsd_train(
     output_shape_ac = aclsd_model.forward(torch.empty(size=[1, 10] + input_shape_ac))[
         0
     ].shape[1:]
-    print(input_shape_ac, output_shape_ac)
+    logging.info(input_shape_ac, output_shape_ac)
 
     input_size_ac = gp.Coordinate(input_shape_ac) * voxel_size
     output_size_ac = gp.Coordinate(output_shape_ac) * voxel_size
@@ -237,7 +237,7 @@ def aclsd_train(
                 affs_weights: "affs_weights",
             },
             dataset_dtypes={gt_affs: np.float32},
-            output_filename="mtlsd_batch_{iteration}.zarr",
+            output_filename="mtlsd_batch_latest.zarr",
             every=save_every,
         )
 
@@ -278,7 +278,7 @@ def aclsd_train(
                 affs_weights_ac: "affs_weights_ac",
             },
             dataset_dtypes={gt_affs: np.float32},
-            output_filename="aclsd_batch_{iteration}.zarr",
+            output_filename="aclsd_batch_latest.zarr",
             every=save_every,
         )
 
@@ -289,7 +289,7 @@ def aclsd_train(
         warmup is None
     ):  # Allows to do initial segmentation with existing model checkpoints
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
         mtlsd_model.train()
         aclsd_model.train()
     elif warmup > 0:
@@ -304,13 +304,13 @@ def aclsd_train(
                 pipeline.request_batch(request)
 
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
         mtlsd_model.train()
         aclsd_model.train()
 
     # Add segmentation predictions to training pipeline
     # Then repeat, scaling up the prediction usage
-    for ratio in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]:
+    for ratio in [0,1, 0.2, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
         print(f"Rinse & Repeat @ ratio: {ratio}")
         training_pipeline, request = get_training_pipeline()
         pipeline = (gt_source, predicted_source) + gp.RandomProvider(
@@ -322,6 +322,6 @@ def aclsd_train(
                 pipeline.request_batch(request)
 
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
         mtlsd_model.train()
         aclsd_model.train()
