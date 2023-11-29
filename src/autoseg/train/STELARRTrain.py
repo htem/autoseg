@@ -24,6 +24,7 @@ from ..utils import neighborhood
 def stelarr_train(
     raw_file: str = "../../data/xpress-challenge.zarr",
     out_file: str = "./raw_predictions.zarr",
+    voxel_size: int = 33,
     iterations: int = 100000,
     warmup: int = 200000,
     save_every: int = 25000,
@@ -56,12 +57,11 @@ def stelarr_train(
     )
     discriminator_loss: GANLoss = GANLoss()
 
-    increase = 8 * 3
     input_shape = [100] * 3
     output_shape = model.forward(torch.empty(size=[1, 1] + input_shape))[0].shape[2:]
-    print(input_shape, output_shape)
+    logging.info(input_shape, output_shape)
 
-    voxel_size = gp.Coordinate((33,) * 3)
+    voxel_size = gp.Coordinate((voxel_size,) * 3)
     input_size = gp.Coordinate(input_shape) * voxel_size
     output_size = gp.Coordinate(output_shape) * voxel_size
 
@@ -260,7 +260,7 @@ def stelarr_train(
         warmup is None
     ):  # Allows to do initial segmentation with existing model checkpoints
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
         model.train()
     elif warmup > 0:
         training_pipeline, request = get_training_pipeline()
@@ -274,12 +274,12 @@ def stelarr_train(
                 pipeline.request_batch(request)
 
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
         model.train()
 
     # Add segmentation predictions to training pipeline
     # Then repeat, scaling up the prediction usage
-    for ratio in [0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
+    for ratio in [0,1, 0.2, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8]:
         print(f"Rinse & Repeat @ ratio: {ratio}")
         training_pipeline, request = get_training_pipeline()
         pipeline = (gt_source, predicted_source) + gp.RandomProvider(
@@ -291,5 +291,5 @@ def stelarr_train(
                 pipeline.request_batch(request)
 
         # Make segmentation predictions
-        get_skel_correct_segmentation(predict_affs=True, voxel_size=33)
+        get_skel_correct_segmentation(predict_affs=True, raw_file=raw_file, out_file=out_file, voxel_size=voxel_size)
         model.train()
