@@ -34,8 +34,7 @@ def mtlsd_train(iterations: int, raw_file: str, voxel_size: int = 33):
     # initial MTLSD UNet
     unet = setup_unet()
 
-
-    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.output_nc)
+    mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.out_channels)
     mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(
         params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)

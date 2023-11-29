@@ -13,7 +13,7 @@ torch.backends.cudnn.benchmark = True
 from ..models.STELARRModel import STELARRModel
 from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
 from ..networks.NLayerDiscriminator import NLayerDiscriminator, NLayerDiscriminator3D
-from ..networks.UNet import UNet
+from ..networks.FLibUNet import setup_unet
 from ..losses.GANLoss import GANLoss
 from ..losses.MSELoss import Weighted_MSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
@@ -44,15 +44,7 @@ def stelarr_train(
     fake_pred = gp.ArrayKey("FAKE_PRED")
     real_pred = gp.ArrayKey("REAL_PRED")
 
-    unet: UNet = UNet(
-        input_nc=1,
-        ngf=12,
-        fmap_inc_factor=3,
-        downsample_factors=[(2, 2, 2), (2, 2, 2)],
-        constant_upsample=True,
-        num_heads=3,
-        padding_type="valid",
-    )
+    unet = se
     model: STELARRModel = STELARRModel(unet=unet, num_fmaps=unet.output_nc)
     discriminator: NLayerDiscriminator3D = NLayerDiscriminator(
         ndims=3,
