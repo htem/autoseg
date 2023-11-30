@@ -4,6 +4,10 @@ from funlib.geometry import Coordinate, Roi
 import tifffile
 import numpy as np
 import zarr
+import numpy as np
+import daisy
+import zarr
+from skimage.draw import line_nd
 
 
 neighborhood: list[list[int]] = [
@@ -95,3 +99,59 @@ def create_masks(raw_file: str, labels_ds: str) -> None:
 
     except KeyError:
         pass
+
+def generate_graph(test_array, skeleton_path):
+    print("Loading from file . . .")
+    gt_graph = np.load(skeleton_path, allow_pickle=True)
+    print("Successfully loaded")
+    nodes_outside_roi = []
+    for i, (treenode, attr) in enumerate(gt_graph.nodes(data=True)):
+        pos = attr["position"]
+        attr["zyx_coord"] = (pos[2], pos[1], pos[0])
+
+        if not test_array.roi.contains(daisy.Coordinate(attr["zyx_coord"])):
+            nodes_outside_roi.append(treenode)
+
+    for node in nodes_outside_roi:
+        gt_graph.remove_node(node)
+
+    return gt_graph
+
+
+def create_array(test_array, gt_graph):
+    gt_ndarray = np.zeros_like(test_array.data).astype(np.uint32)
+    voxel_size = test_array.voxel_size
+    offset = test_array.roi.offset
+
+    for u, v in gt_graph.edges():
+        # todo - don't hardcode voxel size and offset here
+        source = [
+            (i / vx) - o
+            for i, vx, o in zip(gt_graph.nodes[u]["zyx_coord"], voxel_size, offset)
+        ]
+        target = [
+            (i / vx) - o
+            for i, vx, o in zip(gt_graph.nodes[v]["zyx_coord"], voxel_size, offset)
+        ]
+
+        line = line_nd(source, target)
+
+        gt_ndarray[line] = gt_graph.nodes[u]["skeleton_id"]
+
+    return gt_ndarray
+
+
+def rasterized_skeletons(raw_file: str, raw_ds: str, out_file: str, skeleton_path: str) -> None:
+
+    array = daisy.open_ds(raw_file, raw_ds)
+    gt_graph = generate_graph(array, skeleton_path)
+    gt_array = create_array(array, gt_graph)
+
+    out = zarr.open(out_file, "a")
+    unabelled_mask = (gt_array > 0).astype(np.uint8)
+
+    out["volumes/validation_gt_rasters"] = gt_array
+    out["volumes/validation_gt_rasters"].attrs[
+        "resolution"
+    ] = array.voxel_size
+    out["volumes/validation_gt_rasters"].attrs["offset"] = array.roi.offset
