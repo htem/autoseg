@@ -177,7 +177,7 @@ def download_wk_skeleton(
     url="http://catmaid2.hms.harvard.edu:9000",
     annotation_id=None,
     token = None,
-    overwrite=None,
+    overwrite=True,
     zip_suffix=None,
 ):
     # print(f"Downloading {wk_url}/annotations/Explorational/{annotation_ID}...")
@@ -441,14 +441,14 @@ def wkw_seg_to_zarr(
     annotation_id,
     save_path,
     zarr_path,
-    raw_name="volumes/raw",
+    raw_name="volumes/training_raw",
     wk_url="http://catmaid2.hms.harvard.edu:9000",
     wk_token="YqSgxzFJpP2eyjtqymCTPg",
     gt_name=None,
     gt_name_prefix="volumes/",
     overwrite=None,
 ):
-    print(f"Downloading {annotation_ID} from {wk_url}...")
+    print(f"Downloading {annotation_id} from {wk_url}...")
     with wk.webknossos_context(token=wk_token, url=wk_url):
         annotation = wk.Annotation.download(
             annotation_id
