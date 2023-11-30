@@ -7,15 +7,20 @@ def train_model(
     iterations: int = 100000,
     warmup: int = 100000,
     raw_file: str = "path/to/.zarr/or/.n5/or/.tiff",
+    rewrite_file: str = "./rewritten.zarr",
+    rewrite_ds: str = "rewritten_volume",
     out_file: str = "./raw_predictions.zarr",
     voxel_size: int = 33,
     save_every=2500,
 ) -> None:
     
-    # TODO: call ztools to rewrite .tiff file to zarr format
+    # TODO: add util funcs for generating masks 
     if raw_file.endswith(".tiff"):
-        tiff_to_zarr(tiff_file=raw_file)
-        # raw_file: str = TODO: reassign raw file name
+        tiff_to_zarr(tiff_file=raw_file,
+                     out_file=rewrite_file,
+                     out_ds=rewrite_ds)
+    
+
     model_type = model_type.lower()
     if model_type == "mtlsd":
         mtlsd_train(

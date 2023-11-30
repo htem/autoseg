@@ -2,6 +2,8 @@ import numpy as np
 from funlib.persistence import prepare_ds
 from funlib.geometry import Coordinate, Roi
 import tifffile
+import numpy as np
+import zarr
 
 
 neighborhood: list[list[int]] = [
@@ -51,3 +53,45 @@ def tiff_to_zarr(tiff_file:str="path/to/.tiff",
     ds[roi] = tiff_stack
 
     print("TIFF Image stack saved as Zarr dataset.")
+
+
+def create_masks(raw_file: str, labels_ds: str) -> None:
+    f = zarr.open(raw_file, "a")
+
+    labels = f[labels_ds]
+    offset = labels.attrs["offset"]
+    resolution = labels.attrs["resolution"]
+
+    labels = labels[:]
+
+    labels_mask = np.ones_like(labels).astype(np.uint8)
+    unlabelled_mask = (labels > 0).astype(np.uint8)
+
+    for ds_name, data in [
+        ("volumes/training_labels_cropped_mask", labels_mask),
+        ("volumes/training_unlabelled_cropped_mask", unlabelled_mask),
+    ]:
+        f[ds_name] = data
+        f[ds_name].attrs["offset"] = offset
+        f[ds_name].attrs["resolution"] = resolution
+
+    try:
+        labels = f["volumes/training_gt_rasters"]
+        offset = labels.attrs["offset"]
+        resolution = labels.attrs["resolution"]
+
+        labels = labels[:]
+
+        labels_mask = np.ones_like(labels).astype(np.uint8)
+        unlabelled_mask = (labels > 0).astype(np.uint8)
+
+        for ds_name, data in [
+            ("volumes/training_raster_mask", labels_mask),
+            ("volumes/training_unrastered_mask", unlabelled_mask),
+        ]:
+            f[ds_name] = data
+            f[ds_name].attrs["offset"] = offset
+            f[ds_name].attrs["resolution"] = resolution
+
+    except KeyError:
+        pass
