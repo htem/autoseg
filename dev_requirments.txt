@@ -3,7 +3,7 @@ hglom @ git+https://github.com/brianreicher/hierarchical_agglom
 torch
 torchvision
 torchaudio
-lsds
+lsds @ git+https://github.com/brianreicher/lsd.git
 tensorboard
 tensorboardx
 networkx
