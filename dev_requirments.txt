@@ -10,7 +10,7 @@ networkx
 pysqlite3
 numpy
 pymongo
-scikit-image
+scikit-image==0.19.3
 daisy
 zarr
 cython
