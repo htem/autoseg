@@ -67,9 +67,3 @@ class TestWeightedMSELoss(unittest.TestCase):
         # For example, assert that the loss is a tensor and requires gradient
         self.assertTrue(torch.is_tensor(loss))
         self.assertTrue(loss.requires_grad)
-
-
-# Add more tests as needed
-
-if __name__ == "__main__":
-    unittest.main()
