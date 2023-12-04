@@ -10,12 +10,12 @@ class Weighted_MSELoss(torch.nn.Module):
         self.discriminator = discrim
 
     def _calc_loss(self, prediction, target, weights=None):
-        if weights is not None:
+        if type(weights) != torch.Tensor:
             scaled = (prediction - target) ** 2
         else:
             scaled = weights * (prediction - target) ** 2
 
-        if len(torch.nonzero(scaled)) != 0:
+        if len(torch.nonzero(scaled)) != 0 and type(weights)==torch.Tensor:
             mask = torch.masked_select(scaled, torch.gt(weights, 0))
             loss = torch.mean(mask)
 

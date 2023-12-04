@@ -3,29 +3,35 @@ import unittest
 from autoseg.losses import Weighted_MSELoss
 
 
-class DummyDiscriminator(torch.nn.Module):
-    def forward(self, x):
-        return torch.rand_like(x)
-
 class TestWeightedMSELoss(unittest.TestCase):
 
     def setUp(self):
-        discrim = DummyDiscriminator()
-        self.weighted_mseloss = Weighted_MSELoss(discrim=discrim)
+        # Initialize Weighted_MSELoss with default settings
+        self.weighted_mse_loss = Weighted_MSELoss()
 
-    def test_calc_loss(self):
+    def test_calc_loss_with_weights(self):
+        # Test _calc_loss method with weights provided
         prediction = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
         target = torch.tensor([2.0, 2.0, 2.0], requires_grad=True)
         weights = torch.tensor([1.0, 0.0, 1.0], requires_grad=False)
 
-        loss = self.weighted_mseloss._calc_loss(prediction, target, weights)
+        loss = self.weighted_mse_loss._calc_loss(prediction, target, weights)
 
-        # Add your assertion here based on the expected output
-        self.assertTrue(torch.is_tensor(loss))
-        self.assertTrue(loss.requires_grad)
+        expected_loss = torch.mean(weights * (prediction - target) ** 2)
+        self.assertTrue(torch.allclose(loss, expected_loss))
 
-    def test_forward(self):
-        # Create dummy input data
+    def test_calc_loss_without_weights(self):
+        # Test _calc_loss method without weights provided
+        prediction = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+        target = torch.tensor([2.0, 2.0, 2.0], requires_grad=True)
+
+        loss = self.weighted_mse_loss._calc_loss(prediction, target)
+
+        expected_loss = torch.mean((prediction - target) ** 2)
+        self.assertTrue(torch.allclose(loss, expected_loss))
+
+    def test_forward_with_gan_loss(self):
+        # Test forward method with GAN loss component
         pred_lsds = torch.randn(3, requires_grad=True)
         gt_lsds = torch.randn(3, requires_grad=True)
         lsds_weights = torch.randn(3, requires_grad=False)
@@ -35,8 +41,7 @@ class TestWeightedMSELoss(unittest.TestCase):
         pred_enhanced = torch.randn(3, requires_grad=True)
         gt_enhanced = torch.randn(3, requires_grad=True)
 
-        # Call the forward method
-        loss = self.weighted_mseloss(
+        loss = self.weighted_mse_loss(
             pred_lsds=pred_lsds,
             gt_lsds=gt_lsds,
             lsds_weights=lsds_weights,
@@ -48,5 +53,11 @@ class TestWeightedMSELoss(unittest.TestCase):
         )
 
         # Add your assertion here based on the expected output
+        # For example, assert that the loss is a tensor and requires gradient
         self.assertTrue(torch.is_tensor(loss))
         self.assertTrue(loss.requires_grad)
+
+# Add more tests as needed
+
+if __name__ == '__main__':
+    unittest.main()
