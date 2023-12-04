@@ -6,7 +6,6 @@ from autoseg.models import ACLSDModel
 
 
 class TestACLSDModel(unittest.TestCase):
-
     def setUp(self):
         # Set up any required data or configuration for your tests
         unet = setup_unet(
@@ -14,7 +13,7 @@ class TestACLSDModel(unittest.TestCase):
             downsample_factors=[(2, 2, 2), (2, 2, 2)],
             padding="same",
             num_heads=1,
-        )        
+        )
         self.mtlsd_model = ACLSDModel(unet, unet.out_channels)
 
     def test_forward(self):

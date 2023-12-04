@@ -6,7 +6,6 @@ from autoseg.models import STELARRModel
 
 
 class TestSTELARRModel(unittest.TestCase):
-
     def setUp(self):
         # Set up any required data or configuration for your tests
         unet = setup_unet(downsample_factors=[(2, 2, 2), (2, 2, 2)], num_heads=3)

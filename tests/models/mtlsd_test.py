@@ -6,7 +6,6 @@ from autoseg.models import MTLSDModel
 
 
 class TestMTLSDModel(unittest.TestCase):
-
     def setUp(self):
         # Set up any required data or configuration for your tests
         unet = setup_unet()
