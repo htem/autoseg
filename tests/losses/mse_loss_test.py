@@ -3,11 +3,16 @@ import unittest
 from autoseg.losses import Weighted_MSELoss
 
 
+class DummyDiscriminator(torch.nn.Module):
+    def forward(self, x):
+        return torch.rand_like(x)
+    
 class TestWeightedMSELoss(unittest.TestCase):
 
     def setUp(self):
         # Initialize Weighted_MSELoss with default settings
-        self.weighted_mse_loss = Weighted_MSELoss()
+        discrim = DummyDiscriminator()
+        self.weighted_mse_loss = Weighted_MSELoss(discrim=discrim)
 
     def test_calc_loss_with_weights(self):
         # Test _calc_loss method with weights provided
@@ -17,7 +22,13 @@ class TestWeightedMSELoss(unittest.TestCase):
 
         loss = self.weighted_mse_loss._calc_loss(prediction, target, weights)
 
-        expected_loss = torch.mean(weights * (prediction - target) ** 2)
+        expected_loss = weights * (prediction - target) ** 2
+        if len(torch.nonzero(expected_loss)) != 0 and type(weights)==torch.Tensor:
+            mask = torch.masked_select(expected_loss, torch.gt(weights, 0))
+            expected_loss = torch.mean(mask)
+        else:
+            expected_loss = torch.mean(expected_loss)
+
         self.assertTrue(torch.allclose(loss, expected_loss))
 
     def test_calc_loss_without_weights(self):
