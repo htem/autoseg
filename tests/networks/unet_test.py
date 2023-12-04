@@ -7,7 +7,6 @@ from autoseg.networks.UNet import *
 
 
 class TestConvPass(unittest.TestCase):
-
     def test_ConvPass_output_shape(self):
         input_nc = 1
         output_nc = 1
@@ -20,7 +19,16 @@ class TestConvPass(unittest.TestCase):
         input_shape = (1, 1, 10, 10, 10)
         x = torch.randn(input_shape)
 
-        conv_pass = ConvPass(input_nc, output_nc, kernel_sizes, activation, padding, residual, padding_mode, norm_layer)
+        conv_pass = ConvPass(
+            input_nc,
+            output_nc,
+            kernel_sizes,
+            activation,
+            padding,
+            residual,
+            padding_mode,
+            norm_layer,
+        )
         output = conv_pass(x)
         expected_shape = (1, 1, 8, 8, 8)
 
@@ -38,7 +46,16 @@ class TestConvPass(unittest.TestCase):
         input_shape = (1, 1, 10, 10, 10)
         x = torch.randn(input_shape)
 
-        conv_pass = ConvPass(input_nc, output_nc, kernel_sizes, activation, padding, residual, padding_mode, norm_layer)
+        conv_pass = ConvPass(
+            input_nc,
+            output_nc,
+            kernel_sizes,
+            activation,
+            padding,
+            residual,
+            padding_mode,
+            norm_layer,
+        )
         output = conv_pass(x)
         expected_shape = (1, 1, 8, 8, 8)
         self.assertEqual(output.shape, expected_shape)
@@ -55,7 +72,16 @@ class TestConvPass(unittest.TestCase):
         input_shape = (1, 1, 10, 10, 10)
         x = torch.randn(input_shape)
 
-        conv_pass = ConvPass(input_nc, output_nc, kernel_sizes, activation, padding, residual, padding_mode, norm_layer)
+        conv_pass = ConvPass(
+            input_nc,
+            output_nc,
+            kernel_sizes,
+            activation,
+            padding,
+            residual,
+            padding_mode,
+            norm_layer,
+        )
         output = conv_pass(x)
         expected_shape = (1, 1, 8, 8, 8)
         self.assertEqual(output.shape, expected_shape)
@@ -65,8 +91,8 @@ class ConvDownsampleTestCase(unittest.TestCase):
     def setUp(self):
         self.input_nc = 1
         self.output_nc = 1
-        self.kernel_sizes = (3,3)
-        self.downsample_factor =  2
+        self.kernel_sizes = (3, 3)
+        self.downsample_factor = 2
         self.activation = nn.ReLU
         self.padding = "valid"
         self.padding_mode = "reflect"
@@ -99,7 +125,9 @@ class ConvDownsampleTestCase(unittest.TestCase):
 
     def test_stride(self):
         conv_layer = self.model.conv_pass[0]
-        self.assertEqual(conv_layer.stride, (self.downsample_factor, self.downsample_factor))
+        self.assertEqual(
+            conv_layer.stride, (self.downsample_factor, self.downsample_factor)
+        )
 
     def test_padding(self):
         conv_layer = self.model.conv_pass[0]
@@ -118,7 +146,7 @@ class TestMaxDownsample(unittest.TestCase):
         x = torch.randn(1, 3, 32, 32)
         y = model(x)
         self.assertEqual(list(y.size()[2:]), [16, 16])
-        
+
     def test_downsample_3d(self):
         downsample_factor = [2, 2, 2]
         flexible = False
@@ -126,7 +154,7 @@ class TestMaxDownsample(unittest.TestCase):
         x = torch.randn(1, 3, 32, 32, 32)
         y = model(x)
         self.assertEqual(list(y.size()[2:]), [16, 16, 16])
-        
+
     def test_mismatch_error(self):
         downsample_factor = [2, 2]
         flexible = False
@@ -134,6 +162,7 @@ class TestMaxDownsample(unittest.TestCase):
         x = torch.randn(1, 3, 33, 33)
         with self.assertRaises(RuntimeError):
             y = model(x)
+
 
 """
 class TestUpsample(unittest.TestCase):
@@ -169,6 +198,7 @@ class TestUpsample(unittest.TestCase):
         self.assertTrue(torch.allclose(upsample(input_tensor), expected_output_tensor, rtol=1e-5, atol=1e-5))
 """
 
+
 class TestUNet(unittest.TestCase):
     def test_init(self):
         input_nc = 3
@@ -182,13 +212,15 @@ class TestUNet(unittest.TestCase):
         self.assertEqual(unet.num_heads, 1)
         self.assertEqual(unet.input_nc, 3)
         self.assertIsInstance(unet, torch.nn.Module)
-    
+
     def test_forward(self):
         input_nc = 3
         ngf = 16
         fmap_inc_factor = 2
         downsample_factors = [(2, 2, 2), (2, 2, 2)]
-        unet = UNet(input_nc, ngf, fmap_inc_factor, downsample_factors, padding_type="same")
+        unet = UNet(
+            input_nc, ngf, fmap_inc_factor, downsample_factors, padding_type="same"
+        )
 
         input_data = torch.randn(1, 3, 64, 64, 64)
         output = unet(input_data)

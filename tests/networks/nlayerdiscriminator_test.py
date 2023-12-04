@@ -2,8 +2,8 @@ import unittest
 import torch
 from autoseg.networks.NLayerDiscriminator import *
 
-class TestNLayerDiscriminator2D(unittest.TestCase):
 
+class TestNLayerDiscriminator2D(unittest.TestCase):
     def test_output_shape(self):
         # Test that the discriminator produces an output tensor of the expected shape
         input_nc = 3
@@ -38,7 +38,6 @@ class TestNLayerDiscriminator2D(unittest.TestCase):
 
 
 class TestNLayerDiscriminator3D(unittest.TestCase):
-
     def test_output_shape(self):
         # Test the output shape of the discriminator
         batch_size = 2
