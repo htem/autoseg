@@ -19,6 +19,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Cache boost and graph-tools installations
+        uses: actions/cache@v2
+        with:
+          path: |
+            /usr/include
+            /usr/lib
+          key: ${{ runner.os }}-boost-graph-tools-${{ hashFiles('**/*.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-boost-graph-tools-
+
       - name: Install boost
         run: sudo apt install libboost-all-dev
 
