@@ -6,9 +6,9 @@ from autoseg.losses import Weighted_MSELoss
 class DummyDiscriminator(torch.nn.Module):
     def forward(self, x):
         return torch.rand_like(x)
-    
-class TestWeightedMSELoss(unittest.TestCase):
 
+
+class TestWeightedMSELoss(unittest.TestCase):
     def setUp(self):
         # Initialize Weighted_MSELoss with default settings
         discrim = DummyDiscriminator()
@@ -23,7 +23,7 @@ class TestWeightedMSELoss(unittest.TestCase):
         loss = self.weighted_mse_loss._calc_loss(prediction, target, weights)
 
         expected_loss = weights * (prediction - target) ** 2
-        if len(torch.nonzero(expected_loss)) != 0 and type(weights)==torch.Tensor:
+        if len(torch.nonzero(expected_loss)) != 0 and type(weights) == torch.Tensor:
             mask = torch.masked_select(expected_loss, torch.gt(weights, 0))
             expected_loss = torch.mean(mask)
         else:
@@ -68,7 +68,8 @@ class TestWeightedMSELoss(unittest.TestCase):
         self.assertTrue(torch.is_tensor(loss))
         self.assertTrue(loss.requires_grad)
 
+
 # Add more tests as needed
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

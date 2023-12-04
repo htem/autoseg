@@ -4,7 +4,6 @@ from autoseg.losses import GANLoss
 
 
 class TestGANLoss(unittest.TestCase):
-
     def setUp(self):
         # Initialize GANLoss with default settings
         self.gan_loss = GANLoss()
@@ -28,7 +27,9 @@ class TestGANLoss(unittest.TestCase):
         self.gan_loss = GANLoss(gan_mode="vanilla")
         real_pred = torch.tensor([0.9, 0.8, 0.7], requires_grad=True)
         loss = self.gan_loss(real_pred=real_pred)
-        expected_loss = torch.nn.BCEWithLogitsLoss()(real_pred, torch.full_like(real_pred, 1.0))
+        expected_loss = torch.nn.BCEWithLogitsLoss()(
+            real_pred, torch.full_like(real_pred, 1.0)
+        )
         self.assertTrue(torch.allclose(loss, expected_loss))
 
     def test_vanilla_loss_fake(self):
@@ -36,7 +37,9 @@ class TestGANLoss(unittest.TestCase):
         self.gan_loss = GANLoss(gan_mode="vanilla")
         fake_pred = torch.tensor([0.2, 0.3, 0.1], requires_grad=True)
         loss = self.gan_loss(fake_pred=fake_pred)
-        expected_loss = torch.nn.BCEWithLogitsLoss()(fake_pred, torch.full_like(fake_pred, 0.0))
+        expected_loss = torch.nn.BCEWithLogitsLoss()(
+            fake_pred, torch.full_like(fake_pred, 0.0)
+        )
         self.assertTrue(torch.allclose(loss, expected_loss))
 
     def test_wgangp_loss_real(self):

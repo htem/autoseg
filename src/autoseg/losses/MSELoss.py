@@ -15,7 +15,7 @@ class Weighted_MSELoss(torch.nn.Module):
         else:
             scaled = weights * (prediction - target) ** 2
 
-        if len(torch.nonzero(scaled)) != 0 and type(weights)==torch.Tensor:
+        if len(torch.nonzero(scaled)) != 0 and type(weights) == torch.Tensor:
             mask = torch.masked_select(scaled, torch.gt(weights, 0))
             loss = torch.mean(mask)
 
