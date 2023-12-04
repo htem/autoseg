@@ -15,6 +15,7 @@ daisy
 zarr
 cython
 pytest
+mahotas
 waterz @ git+https://github.com/funkey/waterz
 mwatershed @ git+https://github.com/pattonw/mwatershed
 funlib.geometry @ git+https://github.com/funkelab/funlib.geometry
