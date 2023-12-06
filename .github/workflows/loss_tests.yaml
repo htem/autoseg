@@ -38,16 +38,5 @@ jobs:
       - name: Install dependencies
         run: pip install -r dev_requirments.txt
 
-      - name: Set up SQLite and create test database
-        run: |
-          sudo apt-get install sqlite3
-          python -m sqlite3 test_db.db <<EOF
-          CREATE TABLE test_scores_table (
-            network TEXT,
-            checkpoint INTEGER,
-            threshold REAL,
-            scores TEXT
-          );
-          EOF
       - name: Test with pytest
-        run: pytest tests
+        run: pytest tests/losses
