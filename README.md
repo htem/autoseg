@@ -10,17 +10,17 @@ Automated segmentation for large-scale biological datasets.
   </a>
   <!-- Loss Test Actions -->
   <a href="https://github.com/htem/autoseg/actions/workflows/loss_tests.yaml">
-    <img src="https://github.com/htem/autoseg/actions/workflows/tests.yaml/badge.svg"
+    <img src="https://github.com/htem/autoseg/actions/workflows/loss_tests.yaml/badge.svg"
       alt="Loss Tests Actions Status" />
   </a>
   <!-- Network Test Actions -->
   <a href="https://github.com/htem/autoseg/actions/workflows/network_tests.yaml">
-    <img src="https://github.com/htem/autoseg/actions/workflows/tests.yaml/badge.svg"
+    <img src="https://github.com/htem/autoseg/actions/workflows/network_tests.yaml/badge.svg"
       alt="Network Tests Actions Status" />
   </a>
   <!-- Model Test Actions -->
   <a href="https://github.com/htem/autoseg/actions/workflows/model_tests.yaml">
-    <img src="https://github.com/htem/autoseg/actions/workflows/tests.yaml/badge.svg"
+    <img src="https://github.com/htem/autoseg/actions/workflows/model_tests.yaml/badge.svg"
       alt="Model Tests Actions Status" />
   </a>
 </div>
