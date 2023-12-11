@@ -441,6 +441,8 @@ def wkw_seg_to_zarr(
     annotation_id,
     save_path,
     zarr_path,
+    shape,
+    offset,
     raw_name="volumes/training_raw",
     wk_url="http://catmaid2.hms.harvard.edu:9000",
     wk_token="YqSgxzFJpP2eyjtqymCTPg",
@@ -481,13 +483,10 @@ def wkw_seg_to_zarr(
 
     zarr_path = zarr_path.rstrip(os.sep)
     print(f"Opening {zarr_path}/{raw_name}...")
-    # ds = daisy.open_ds(zarr_path, raw_name)
-    # offset = ds.roi.get_offset() #/ ds.voxel_size
-    # offset = Coordinate(0, 0, 0)
-    roi = Roi((12600, 14100, 51100), (20000, 20000, 20000))
-    shape = Coordinate(200, 200, 200)
-    # shape = ds.roi.get_shape() / ds.voxel_size
-    # shape = Roi()
+
+    offset = Coordinate((offset)*3)
+    shape = Coordinate((shape)*3)
+    roi = Roi(offset, shape*voxel_size)
 
     # Extract zip file
     zf = zipfile.ZipFile(zip_path)
@@ -502,7 +501,7 @@ def wkw_seg_to_zarr(
             # Open the WKW dataset (as the `1` folder)
             print(f"Opening {zf_data_tmpdir + '/1'}...")
             dataset = wkw.wkw.Dataset.open(zf_data_tmpdir + "/1")
-            data = dataset.read(off=(126, 141, 511), shape=shape).squeeze()
+            data = dataset.read(off=offset, shape=shape*voxel_size).squeeze()
 
     print(f"Sum of all data: {data.sum()}")
     # Save annotations to zarr
