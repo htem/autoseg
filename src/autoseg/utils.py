@@ -23,6 +23,8 @@ import logging
 from skimage.draw import line_nd
 
 
+logger = logging.getLogger(__name__)
+
 neighborhood: list[list[int]] = [
     [1, 0, 0],
     [0, 1, 0],
@@ -59,7 +61,6 @@ def tiff_to_zarr(
     roi: Roi = Roi(offset=(offset) * 3, shape=tiff_stack.shape * np.array(voxel_size))
 
     print("Roi: ", roi)
-    voxel_size: Coordinate = Coordinate(100, 100, 100)
 
     ds = prepare_ds(
         filename=out_file,
@@ -82,10 +83,10 @@ def create_masks(raw_file: str, labels_ds: str) -> None:
     offset = labels.attrs["offset"]
     resolution = labels.attrs["resolution"]
 
-    labels = labels[:]
+    labels: np.ndarray = labels[:]
 
-    labels_mask = np.ones_like(labels).astype(np.uint8)
-    unlabelled_mask = (labels > 0).astype(np.uint8)
+    labels_mask: np.ndarray = np.ones_like(labels).astype(np.uint8)
+    unlabelled_mask: np.ndarray = (labels > 0).astype(np.uint8)
 
     for ds_name, data in [
         ("volumes/training_labels_cropped_mask", labels_mask),
@@ -171,9 +172,6 @@ def rasterized_skeletons(
     out["volumes/validation_gt_rasters"] = gt_array
     out["volumes/validation_gt_rasters"].attrs["resolution"] = array.voxel_size
     out["volumes/validation_gt_rasters"].attrs["offset"] = array.roi.offset
-
-
-logger = logging.getLogger(__name__)
 
 
 def download_wk_skeleton(
@@ -449,6 +447,7 @@ def wkw_seg_to_zarr(
     gt_name=None,
     gt_name_prefix="volumes/",
     overwrite=None,
+    voxel_size:int=33,
 ):
     print(f"Downloading {annotation_id} from {wk_url}...")
     with wk.webknossos_context(token=wk_token, url=wk_url):
@@ -458,6 +457,7 @@ def wkw_seg_to_zarr(
     annotation_name = (
         f'{annotation.dataset_name}_{annotation.username.replace(" ","")}_{time_str}'
     )
+    voxel_size: Coordinate = Coordinate((voxel_size) * 3)
     if save_path[-1] != os.sep:
         save_path += os.sep
     zip_path = save_path + annotation_name + ".zip"
@@ -510,7 +510,7 @@ def wkw_seg_to_zarr(
         gt_name = f'{gt_name_prefix}gt_{annotation.dataset_name}_{annotation.username.replace(" ","")}_{time_str}'
 
     target_roi = roi
-    gt_array = daisy.Array(data, roi, (100, 100, 100))
+    gt_array = daisy.Array(data, roi, voxel_size)
 
     chunk_size = 1000
     num_channels = 1
