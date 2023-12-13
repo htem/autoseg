@@ -449,7 +449,7 @@ def wkw_seg_to_zarr(
     gt_name=None,
     gt_name_prefix="volumes/",
     overwrite=None,
-    voxel_size:int=33,
+    voxel_size: int = 33,
 ):
     print(f"Downloading {annotation_id} from {wk_url}...")
     with wk.webknossos_context(token=wk_token, url=wk_url):
@@ -484,9 +484,9 @@ def wkw_seg_to_zarr(
     zarr_path = zarr_path.rstrip(os.sep)
     print(f"Opening {zarr_path}/{raw_name}...")
 
-    offset = Coordinate((offset)*3)
-    shape = Coordinate((shape)*3)
-    roi = Roi(offset, shape*voxel_size)
+    offset = Coordinate((offset) * 3)
+    shape = Coordinate((shape) * 3)
+    roi = Roi(offset, shape * voxel_size)
 
     # Extract zip file
     zf = zipfile.ZipFile(zip_path)
@@ -501,7 +501,7 @@ def wkw_seg_to_zarr(
             # Open the WKW dataset (as the `1` folder)
             print(f"Opening {zf_data_tmpdir + '/1'}...")
             dataset = wkw.wkw.Dataset.open(zf_data_tmpdir + "/1")
-            data = dataset.read(off=offset, shape=shape*voxel_size).squeeze()
+            data = dataset.read(off=offset, shape=shape * voxel_size).squeeze()
 
     print(f"Sum of all data: {data.sum()}")
     # Save annotations to zarr
