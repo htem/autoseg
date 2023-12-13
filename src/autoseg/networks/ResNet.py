@@ -82,7 +82,6 @@ class ResnetGenerator2D(torch.nn.Module):
 
         mult = 2**n_downsampling
         for i in range(n_blocks):  # add ResNet blocks
-
             model += [
                 ResnetBlock2D(
                     ngf * mult,
@@ -302,7 +301,6 @@ class ResnetGenerator3D(torch.nn.Module):
 
         mult = 2**n_downsampling
         for i in range(n_blocks):  # add ResNet blocks
-
             model += [
                 ResnetBlock3D(
                     ngf * mult,
