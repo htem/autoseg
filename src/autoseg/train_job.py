@@ -1,7 +1,7 @@
 from more_itertools import raise_
 from .train import mtlsd_train, aclsd_train, stelarr_train
 from .utils import tiff_to_zarr, create_masks
-from .train_job import WebknossosToolkit
+from .webknossos import WebknossosToolkit
 
 
 def train_model(
