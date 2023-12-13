@@ -1,12 +1,7 @@
 from more_itertools import raise_
 from .train import mtlsd_train, aclsd_train, stelarr_train
-from .utils import (
-    tiff_to_zarr,
-    create_masks,
-    wkw_seg_to_zarr,
-    download_wk_skeleton,
-    rasterize_skeleton,
-)
+from .utils import tiff_to_zarr, create_masks
+from .train_job import WebknossosToolkit
 
 
 def train_model(
@@ -32,10 +27,11 @@ def train_model(
             raw_file: str = rewrite_file
         except:
             raise ("Could not convert TIFF file to zarr volume")
+    wk: WebknossosToolkit = WebknossosToolkit()
 
     if get_labels:
         try:
-            wkw_seg_to_zarr(
+            wk.wkw_seg_to_zarr(
                 annotation_id=annotation_id,
                 save_path=".",
                 zarr_path=raw_file,
@@ -47,10 +43,10 @@ def train_model(
 
     if get_rasters:
         try:
-            zip_path: str = download_wk_skeleton(
+            zip_path: str = wk.download_wk_skeleton(
                 annotation_id=annotation_id, token=wk_token
             )
-            rasterize_skeleton(zip_path=zip_path, raw_file=raw_file)
+            wk.rasterize_skeleton(zip_path=zip_path, raw_file=raw_file)
         except:
             raise ("Could not fetch and convert skeletons to zarr format")
 
