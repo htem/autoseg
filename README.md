@@ -77,6 +77,55 @@ pip install git+https://github.com/brianreicher/autoseg.git
 
 
 ### Usage
+This package is used for training, predicting, & evaluating deep learning segmentation models. The models are compatible with Zarr & N5 chunked image files, and volumes should be stored in the following format:
+
+```
+your_dataset.zarr/
+|-- volumes/
+|   |-- training_raw/
+|   |   |-- 0/
+|   |   |   |-- <raw_data_chunk_0>
+|   |   |   |-- <raw_data_chunk_1>
+|   |   |   |   ...
+|   |   |-- 1/
+|   |       ...
+|-- training_labels/
+|   |-- 0/
+|   |   |-- <label_chunk_0>
+|   |   |-- <label_chunk_1>
+|   |   |   ...
+|   |-- 1/
+|       ...
+|-- training_labels_masked/
+|   |-- 0/
+|   |   |-- <masked_label_chunk_0>
+|   |   |-- <masked_label_chunk_1>
+|   |   |   ...
+|   |-- 1/
+|       ...
+|-- training_labels_unmasked/
+    |-- 0/
+    |   |-- <unmasked_label_chunk_0>
+    |   |-- <unmasked_label_chun
+```
+
+1. The first step in the `autoseg` segmentation pipeline is predicting pixel affinities. Pointing the `autoseg.train_model()` driver function to a zarr with the following volumes will allow for training, along with hyperparameter tuning.
+
+```bash
+from autoseg import train_model
+
+
+train_model(
+    model_type="MTLSD",
+    iterations=100000,
+    warmup=100000,
+    raw_file="path/to/your/raw/data.zarr",
+    out_file="./raw_predictions.zarr",
+    voxel_size=33,
+    save_every=25000,
+)
+```
+Functonality exists in `autoseg.utils` and `autoseg.WebknossosToolkit()` to handle data fetching, transformations, and conversions.
 
 
 ### Credits

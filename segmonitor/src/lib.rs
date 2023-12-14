@@ -28,7 +28,6 @@ pub mod segmonitor {
     }
 
     fn load_config(config_path: &str) -> Config {
-        // Load configuration from JSON file
         let config_str = std::fs::read_to_string(config_path).expect("Error reading config file");
         serde_json::from_str(&config_str).expect("Error parsing JSON")
     }
