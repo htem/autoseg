@@ -33,6 +33,18 @@ def tiff_to_zarr(
     dtype=np.uint8,
     transpose: bool = False,
 ) -> None:
+    """
+    Convert TIFF stack to Zarr dataset.
+
+    Parameters:
+        tiff_file (str): Path to the input TIFF file.
+        out_file (str): Path to the output Zarr file.
+        out_ds (str): Name of the Zarr dataset to store the TIFF data.
+        voxel_size (int): Voxel size in all three dimensions.
+        offset (int): Offset for the region of interest.
+        dtype (numpy.dtype): Data type for the Zarr dataset.
+        transpose (bool): If True, transpose the TIFF stack.
+    """
     tiff_stack: np.ndarray = tifffile.imread(tiff_file)
     if transpose:
         tiff_stack = np.transpose(tiff_stack, (2, 1, 0))
@@ -57,6 +69,16 @@ def tiff_to_zarr(
 
 
 def create_masks(raw_file: str, labels_ds: str) -> None:
+    """
+    Create masks based on label information in a Zarr file.
+
+    Parameters:
+        raw_file (str): Path to the Zarr file containing raw data.
+        labels_ds (str): Name of the Zarr dataset containing label information.
+
+    Returns:
+        None: No return value. Masks are created and stored in the Zarr file.
+    """
     f = zarr.open(raw_file, "a")
 
     labels = f[labels_ds]
