@@ -32,36 +32,42 @@ Automated segmentation for large-scale biological datasets.
 * Free software: Apache 2.0 License
 
 ### Installation
+A complete install can be run with: 
+```bash
+bash install.sh
+```
 
-Install Rust and Cargo via RustUp:
+Or install-by-install as follows:
+
+1. Install Rust and Cargo via RustUp:
 
 ```bash
 curl https://sh.rustup.rs -sSf | sh
 ```
 
 
-Install MongoDB:
+2. Install MongoDB:
 
 ```bash
 curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
 ```
 
 
-And initialize a MongoDB server in a screen on your machine:
+3. And initialize a MongoDB server in a screen on your machine:
 
 ```bash
 screen
 mongod
 ```
 
-Install ``graph_tool``
+4. Install ``graph_tool``
 
 ```bash
 conda install -c conda-forge -c ostrokach-forge -c pkgw-forge graph-tool
 ```
 
 
-Install `autoseg`:
+5. Install `autoseg`:
 
 ```bash
 pip install git+https://github.com/brianreicher/autoseg.git

@@ -10,3 +10,6 @@ conda install -c conda-forge -c ostrokach-forge -c pkgw-forge graph-tool
 # initialize a MongoDB server
 screen 
 mongod
+
+# install autoseg
+pip install git+https://github.com/brianreicher/autoseg.git
