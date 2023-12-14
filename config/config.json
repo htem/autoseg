@@ -1,0 +1,8 @@
+{
+    "model_type": "MTLSD",
+    "iterations": 100000,
+    "warmup": 100000,
+    "raw_file": "path/to/zarr/or/n5",
+    "voxel_size": 33,
+    "python_script_path": "path/to/python_script.py"
+}

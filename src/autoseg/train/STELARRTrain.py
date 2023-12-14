@@ -33,17 +33,17 @@ def stelarr_train(
     Train STELARR model using Gunpowder library.
 
     Args:
-        raw_file (str): 
+        raw_file (str):
             Path to the raw data file.
-        out_file (str): 
+        out_file (str):
             Path to the output file for raw predictions.
-        voxel_size (int): 
+        voxel_size (int):
             Voxel size.
-        iterations (int): 
+        iterations (int):
             Number of training iterations.
-        warmup (int): 
+        warmup (int):
             Number of warm-up iterations.
-        save_every (int): 
+        save_every (int):
             Save predictions every 'save_every' iterations.
     """
     raw = gp.ArrayKey("RAW")

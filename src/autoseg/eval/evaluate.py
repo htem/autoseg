@@ -23,15 +23,15 @@ def segment_and_validate(
     It logs information about the segmentation and validation process.
 
     Args:
-        model_checkpoint (str): 
+        model_checkpoint (str):
             The checkpoint of the segmentation model to use (default is "latest").
-        checkpoint_num (int): 
+        checkpoint_num (int):
             The checkpoint number for the affinity model (default is 250000).
-        setup_num (str): 
+        setup_num (str):
             The setup number for the affinity model (default is "1738").
 
     Returns:
-        dict: 
+        dict:
             A dictionary containing scores and evaluation metrics.
     """
     logger.info(
@@ -85,27 +85,27 @@ def validate(
     Validate segmentation results using specified parameters.
 
     Args:
-        checkpoint (str): 
+        checkpoint (str):
             The checkpoint identifier.
-        threshold (float): 
+        threshold (float):
             The threshold value.
-        offset (str): 
+        offset (str):
             The offset for ROI (default is "3960,3960,3960").
-        roi_shape (str): 
+        roi_shape (str):
             The shape of ROI (default is "31680,31680,31680").
-        skel (str): 
+        skel (str):
             The path to the skeleton data file (default is "../../data/XPRESS_validation_skels.npz").
-        zarr (str): 
+        zarr (str):
             The path to the Zarr file for storing segmentation data (default is "./validation.zarr").
-        h5 (str): 
+        h5 (str):
             The path to the HDF5 file for storing validation data (default is "validation.h5").
-        ds (str): 
+        ds (str):
             The dataset name (default is "pred_seg").
-        print_errors (bool): 
+        print_errors (bool):
             Print errors during validation (default is False).
-        print_in_xyz (bool): 
+        print_in_xyz (bool):
             Print coordinates in XYZ format (default is False).
-        downsample (int): 
+        downsample (int):
             Downsample factor for evaluation (default is None).
     """
     network = os.path.abspath(".").split(os.path.sep)[-1]

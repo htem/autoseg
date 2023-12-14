@@ -1,6 +1,7 @@
 import sqlite3
 import json
 
+
 class Database:
     """
     Simple SQLite Database Wrapper for Storing and Retrieving Scores.
@@ -9,17 +10,17 @@ class Database:
     Each score entry is associated with a network, checkpoint, threshold, and a dictionary of scores.
 
     Args:
-        db_name (str): 
+        db_name (str):
             The name of the SQLite database file.
-        table_name (str): 
+        table_name (str):
             The name of the table within the database (default is 'scores_table').
 
     Attributes:
-        conn (sqlite3.Connection): 
+        conn (sqlite3.Connection):
             The SQLite database connection.
-        cursor (sqlite3.Cursor): 
+        cursor (sqlite3.Cursor):
             The SQLite database cursor.
-        table_name (str): 
+        table_name (str):
             The name of the table within the database.
 
     Methods:
@@ -50,13 +51,13 @@ class Database:
         Add a score entry to the database.
 
         Args:
-            network (str): 
+            network (str):
                 The name of the network.
-            checkpoint (int): 
+            checkpoint (int):
                 The checkpoint number.
-            threshold (float): 
+            threshold (float):
                 The threshold value.
-            scores_dict (dict): 
+            scores_dict (dict):
                 A dictionary containing scores.
         """
         assert type(network) is str
@@ -74,11 +75,11 @@ class Database:
         Retrieve scores from the database based on specified conditions.
 
         Args:
-            networks (str, list): 
+            networks (str, list):
                 The name or list of names of networks to filter on.
-            checkpoints (int, list): 
+            checkpoints (int, list):
                 The checkpoint number or list of checkpoint numbers to filter on.
-            thresholds (float, list): 
+            thresholds (float, list):
                 The threshold value or list of threshold values to filter on.
 
         Returns:

@@ -18,13 +18,13 @@ def generate_graphs_with_seg_labels(segment_array, skeleton_path):
     the ROI but originally belonged to the same skeleton ID.
 
     Args:
-        segment_array (daisy.Array): 
+        segment_array (daisy.Array):
             Array containing predicted segmentation labels.
-        skeleton_path (str): 
+        skeleton_path (str):
             Path to the skeleton data file.
 
     Returns:
-        networkx.Graph: 
+        networkx.Graph:
             Ground-truth graph with predicted labels added.
     """
     gt_graph = np.load(skeleton_path, allow_pickle=True)
@@ -66,13 +66,13 @@ def eval_erl(graph):
     Compute Expected Run Length (ERL) and normalized ERL for a given graph.
 
     Args:
-        graph (networkx.Graph): 
+        graph (networkx.Graph):
             Graph representing the ground-truth.
 
     Returns:
-        float: 
+        float:
             ERL value.
-        float: 
+        float:
             Normalized ERL value.
     """
     node_seg_lut = {}
@@ -106,13 +106,13 @@ def build_segment_label_subgraph(segment_nodes, graph):
     Build a subgraph using a set of segment nodes from the given graph.
 
     Args:
-        segment_nodes (Iterable): 
+        segment_nodes (Iterable):
             Nodes representing segments.
-        graph (networkx.Graph): 
+        graph (networkx.Graph):
             Original graph.
 
     Returns:
-        networkx.Graph: 
+        networkx.Graph:
             Subgraph containing specified segment nodes.
     """
     subgraph = graph.subgraph(segment_nodes)
@@ -137,15 +137,15 @@ def get_closest_node_pair_between_two_skeletons(skel1, skel2, graph):
     Get the closest pair of nodes between two skeletons in the given graph.
 
     Args:
-        skel1 (Iterable): 
+        skel1 (Iterable):
             Nodes of the first skeleton.
-        skel2 (Iterable): 
+        skel2 (Iterable):
             Nodes of the second skeleton.
-        graph (networkx.Graph): 
+        graph (networkx.Graph):
             Original graph.
 
     Returns:
-        Tuple: 
+        Tuple:
             Closest pair of nodes and their edge attributes.
     """
     multiplier = (1, 1, 1)
@@ -168,11 +168,11 @@ def find_merge_errors(graph):
     Find merge errors in the given graph.
 
     Args:
-        graph (networkx.Graph): 
+        graph (networkx.Graph):
             Original graph.
 
     Returns:
-        set: 
+        set:
             Set of merge errors.
     """
     seg_dict = {}
@@ -210,11 +210,11 @@ def get_split_merges(graph):
     Find split merges in the given graph.
 
     Args:
-        graph (networkx.Graph): 
+        graph (networkx.Graph):
             Original graph.
 
     Returns:
-        set: 
+        set:
             Set of split merges.
     """
     # Count split errors. An error is an edge in the GT skeleton graph connecting two nodes
@@ -232,11 +232,11 @@ def set_point_in_array(array, point_coord, val):
     Set a specific point in the array to a given value.
 
     Args:
-        array (daisy.Array): 
+        array (daisy.Array):
             Target array.
-        point_coord (Tuple): 
+        point_coord (Tuple):
             Coordinates of the point.
-        val: 
+        val:
             Value to set.
     """
     point_coord = daisy.Coordinate(point_coord)
@@ -250,13 +250,13 @@ def make_voxel_gt_array(test_array, gt_graph):
     Rasterize ground-truth points to an empty array for computing Rand/VOI.
 
     Args:
-        test_array (daisy.Array): 
+        test_array (daisy.Array):
             Target array.
-        gt_graph (networkx.Graph): 
+        gt_graph (networkx.Graph):
             Ground-truth graph.
 
     Returns:
-        daisy.Array: 
+        daisy.Array:
             Voxel array containing ground-truth information.
     """
     gt_ndarray = np.zeros_like(test_array.data).astype(np.uint64)
@@ -275,13 +275,13 @@ def get_voi(segment_array, gt_graph):
     Wrapper function to compute Rand/VOI scores.
 
     Args:
-        segment_array (daisy.Array): 
+        segment_array (daisy.Array):
             Array containing predicted segmentation labels.
-        gt_graph (networkx.Graph): 
+        gt_graph (networkx.Graph):
             Ground-truth graph.
 
     Returns:
-        Dict: 
+        Dict:
             Dictionary containing Rand/VOI scores.
     """
     voxel_gt = make_voxel_gt_array(segment_array, gt_graph)
@@ -296,15 +296,15 @@ def run_eval(skeleton_file, segmentation_file, segmentation_ds, roi, downsamplin
     Run evaluation on the predicted segmentation.
 
     Args:
-        skeleton_file (str): 
+        skeleton_file (str):
             Path to the skeleton data file.
-        segmentation_file (str): 
+        segmentation_file (str):
             Path to the segmentation data file.
-        segmentation_ds (str): 
+        segmentation_ds (str):
             Dataset name in the segmentation file.
-        roi (daisy.Roi): 
+        roi (daisy.Roi):
             Region of interest.
-        downsampling (int): 
+        downsampling (int):
             Downsample factor for evaluation.
 
     Returns:
