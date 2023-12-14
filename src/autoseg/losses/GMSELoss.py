@@ -9,11 +9,11 @@ class Weighted_GMSELoss(torch.nn.Module):
     GAN (Generative Adversarial Network) loss term for enhanced data.
 
     Parameters:
-        aff_lambda (float, optional): 
+        aff_lambda (float, optional):
             Weighting factor for the affinity loss. Default is 1.0.
-        gan_lambda (float, optional): 
+        gan_lambda (float, optional):
             Weighting factor for the GAN loss. Default is 1.0.
-        discrim (torch.nn.Module, optional): 
+        discrim (torch.nn.Module, optional):
             Discriminator network for GAN loss.
     """
 
@@ -22,11 +22,11 @@ class Weighted_GMSELoss(torch.nn.Module):
         Initializes the Weighted_MSELoss.
 
         Args:
-            aff_lambda (float, optional): 
+            aff_lambda (float, optional):
                 Weighting factor for the affinity loss. Default is 1.0.
-            gan_lambda (float, optional): 
+            gan_lambda (float, optional):
                 Weighting factor for the GAN loss. Default is 1.0.
-            discrim (torch.nn.Module, optional): 
+            discrim (torch.nn.Module, optional):
                 Discriminator network for GAN loss.
         """
         super(Weighted_GMSELoss, self).__init__()
@@ -40,15 +40,15 @@ class Weighted_GMSELoss(torch.nn.Module):
         Calculates the weighted mean squared error loss.
 
         Args:
-            prediction (torch.Tensor): 
+            prediction (torch.Tensor):
                 Predicted values.
-            target (torch.Tensor): 
+            target (torch.Tensor):
                 Ground truth values.
-            weights (torch.Tensor, optional): 
+            weights (torch.Tensor, optional):
                 Weighting factor for each value.
 
         Returns:
-            torch.Tensor: 
+            torch.Tensor:
                 Weighted mean squared error loss.
         """
         if type(weights) != torch.Tensor:
@@ -79,25 +79,25 @@ class Weighted_GMSELoss(torch.nn.Module):
         Calculates the weighted MSE loss with GAN loss.
 
         Args:
-            pred_lsds (torch.Tensor): 
+            pred_lsds (torch.Tensor):
                 Predicted LSD values.
-            gt_lsds (torch.Tensor): 
+            gt_lsds (torch.Tensor):
                 Ground truth LSD values.
-            lsds_weights (torch.Tensor, optional): 
+            lsds_weights (torch.Tensor, optional):
                 Weighting factor for each LSD value.
-            pred_affs (torch.Tensor): 
+            pred_affs (torch.Tensor):
                 Predicted affinity values.
-            gt_affs (torch.Tensor): 
+            gt_affs (torch.Tensor):
                 Ground truth affinity values.
-            affs_weights (torch.Tensor, optional): 
+            affs_weights (torch.Tensor, optional):
                 Weighting factor for each affinity value.
-            pred_enhanced (torch.Tensor): 
+            pred_enhanced (torch.Tensor):
                 Predicted enhanced data.
-            gt_enhanced (torch.Tensor): 
+            gt_enhanced (torch.Tensor):
                 Ground truth enhanced data.
 
         Returns:
-            torch.Tensor: 
+            torch.Tensor:
                 Combined weighted MSE loss with GAN loss.
         """
         # calculate MSE loss for LSD and Affs

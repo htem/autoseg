@@ -24,37 +24,37 @@ def train_model(
     Train a deep learning model for segmentation.
 
     Parameters:
-        model_type (str): 
+        model_type (str):
             Type of the model to train ("MTLSD", "ACLSD", or "STELARR").
-        iterations (int): 
+        iterations (int):
             Number of training iterations.
-        warmup (int): 
+        warmup (int):
             Number of warm-up iterations for ACLSD and STELARR models.
-        raw_file (str): 
+        raw_file (str):
             Path to the input Zarr or N5 dataset or TIFF file containing raw data.
-        rewrite_file (str): 
+        rewrite_file (str):
             Path to the output Zarr file for TIFF conversion.
-        rewrite_ds (str): 
+        rewrite_ds (str):
             Name of the Zarr dataset to store the converted TIFF data.
-        out_file (str): 
+        out_file (str):
             Path to the output Zarr file for storing predictions.
-        get_labels (bool): 
+        get_labels (bool):
             If True, fetch and convert painting labels to Zarr format.
-        get_rasters (bool): 
+        get_rasters (bool):
             If True, fetch and convert skeletons to Zarr format.
-        generate_masks (bool): 
+        generate_masks (bool):
             If True, generate masks based on label information.
-        voxel_size (int): 
+        voxel_size (int):
             Voxel size in all three dimensions.
-        save_every (int): 
+        save_every (int):
             Interval for saving intermediate models during training.
-        annotation_id (str): 
+        annotation_id (str):
             WebKnossos annotation ID for fetching labels and skeletons.
-        wk_token (str): 
+        wk_token (str):
             WebKnossos API token for authentication.
 
     Returns:
-        None: 
+        None:
             No return value. Trains the specified model and saves predictions.
     """
     if raw_file.endswith(".tiff") or raw_file.endswith(".tif"):

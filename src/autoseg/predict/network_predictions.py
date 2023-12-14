@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def predict_task(
-    model:torch.nn.Module,
+    model: torch.nn.Module,
     model_type: str,
     iteration: int,
     raw_file: str,
@@ -33,31 +33,31 @@ def predict_task(
     Predict affinities using a trained deep learning model.
 
     Parameters:
-        model: 
+        model:
             Trained deep learning model.
-        model_type (str): 
+        model_type (str):
             Type of the model ("MTLSD", "ACLSD", "STELARR").
-        iteration (int): 
+        iteration (int):
             Iteration or checkpoint of the trained model to use.
-        raw_file (str): 
+        raw_file (str):
             Path to the input Zarr or N5 dataset or TIFF file containing raw data.
-        raw_dataset (str): 
+        raw_dataset (str):
             Name of the raw dataset in the input Zarr or N5 file.
-        out_file (str): 
+        out_file (str):
             Path to the output Zarr file for storing predictions.
-        out_datasets (list): 
+        out_datasets (list):
             List of tuples specifying output dataset names and channel counts.
-        num_workers (int): 
+        num_workers (int):
             Number of parallel workers for blockwise processing.
-        n_gpu (int): 
+        n_gpu (int):
             Number of GPUs available for prediction.
-        model_path (str): 
+        model_path (str):
             Path to the directory containing the trained model checkpoints.
-        voxel_size (int): 
+        voxel_size (int):
             Voxel size in all three dimensions.
 
     Returns:
-        None: 
+        None:
             No return value. Predictions are stored in the specified Zarr file.
     """
     if type(iteration) == str and "latest" in iteration:

@@ -3,6 +3,7 @@ import gunpowder as gp
 import random
 from scipy.ndimage import gaussian_filter
 
+
 class SmoothArray(gp.BatchFilter):
     """
     Smooth Array in a Gunpowder Batch.
@@ -10,15 +11,15 @@ class SmoothArray(gp.BatchFilter):
     This class applies Gaussian smoothing to a 3D array in a Gunpowder batch.
 
     Args:
-        array (str): 
+        array (str):
             The name of the array in the batch to be smoothed.
-        blur_range (tuple): 
+        blur_range (tuple):
             The range of sigma values for the Gaussian filter.
 
     Attributes:
-        array (str): 
+        array (str):
             The name of the array in the batch to be smoothed.
-        range (tuple): 
+        range (tuple):
             The range of sigma values for the Gaussian filter.
     """
 
@@ -31,9 +32,9 @@ class SmoothArray(gp.BatchFilter):
         Apply Gaussian smoothing to the specified array in the batch.
 
         Args:
-            batch (Batch): 
+            batch (Batch):
                 The input batch.
-            request (BatchRequest): 
+            request (BatchRequest):
                 The requested batch.
         """
         array = batch[self.array].data

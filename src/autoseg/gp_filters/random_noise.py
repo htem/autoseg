@@ -3,6 +3,7 @@ import gunpowder as gp
 import random
 from skimage.util import random_noise
 
+
 class RandomNoiseAugment(gp.BatchFilter):
     """
     Random Noise Augmentation for Gunpowder.
@@ -10,23 +11,23 @@ class RandomNoiseAugment(gp.BatchFilter):
     This class applies random noise augmentation to the specified array in a Gunpowder batch.
 
     Args:
-        array (str): 
+        array (str):
             The name of the array in the batch to which noise should be applied.
-        seed (int, optional): 
+        seed (int, optional):
             Seed for the random number generator. Default is None.
-        clip (bool, optional): 
+        clip (bool, optional):
             Whether to clip the values after applying noise. Default is True.
-        **kwargs: 
+        **kwargs:
             Additional keyword arguments to be passed to the `random_noise` function.
 
     Attributes:
-        array (str): 
+        array (str):
             The name of the array in the batch to which noise is applied.
-        seed (int): 
+        seed (int):
             Seed for the random number generator.
-        clip (bool): 
+        clip (bool):
             Whether to clip the values after applying noise.
-        kwargs (dict): 
+        kwargs (dict):
             Additional keyword arguments passed to the `random_noise` function.
     """
 
@@ -48,11 +49,11 @@ class RandomNoiseAugment(gp.BatchFilter):
         Prepare the dependencies for processing based on the requested batch.
 
         Args:
-            request (BatchRequest): 
+            request (BatchRequest):
                 The requested batch.
 
         Returns:
-            BatchRequest: 
+            BatchRequest:
                 The dependencies for processing.
         """
         deps = gp.BatchRequest()
@@ -64,9 +65,9 @@ class RandomNoiseAugment(gp.BatchFilter):
         Apply random noise augmentation to the specified array in the batch.
 
         Args:
-            batch (Batch): 
+            batch (Batch):
                 The input batch.
-            request (BatchRequest): 
+            request (BatchRequest):
                 The requested batch.
         """
         raw = batch.arrays[self.array]
