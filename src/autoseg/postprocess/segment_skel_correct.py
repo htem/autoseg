@@ -20,6 +20,31 @@ def get_skel_correct_segmentation(
     model_path="./",
     voxel_size: int = 100,
 ) -> None:
+    """
+    Generate segmentation with skeleton-based correction using RUSTY_MWS.
+
+    Parameters:
+        predict_affs (bool): 
+            Flag to indicate whether to predict affinities.
+        raw_file (str): 
+            Path to the input Zarr dataset containing raw data.
+        raw_dataset (str): 
+            Name of the raw dataset in the input Zarr file.
+        out_file (str): 
+            Path to the output Zarr file for storing predictions.
+        out_datasets (list): 
+            List of tuples specifying output dataset names and channel counts.
+        iteration (str): 
+            Iteration or checkpoint to use (default: "latest").
+        model_path (str): 
+            Path to the directory containing the trained model checkpoints.
+        voxel_size (int):  
+            Voxel size in all three dimensions.
+
+    Returns:
+        None: 
+            No return value. Segmentation with skeleton-based correction is stored in the specified Zarr file.
+    """
     if predict_affs:
         # predict affs
         predict_task(

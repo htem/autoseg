@@ -15,6 +15,27 @@ def get_validation_segmentation(
     out_file="./validation.zarr",
     pred_affs=True,
 ) -> bool:
+    """
+    Get validation segmentation using the specified segmentation style.
+
+    Parameters:
+        segmentation_style (str): 
+            Style of segmentation ("mws" or "mergetree").
+        iteration (str): 
+            Iteration or checkpoint to use (default: "latest").
+        raw_file (str): 
+            Path to the input Zarr dataset containing raw data.
+        raw_dataset (str): 
+            Name of the raw dataset in the input Zarr file.
+        out_file (str): 
+            Path to the output Zarr file for storing predictions.
+        pred_affs (bool): 
+            Flag to indicate whether to predict affinities.
+
+    Returns:
+        bool: 
+            True if segmentation is successful, False otherwise.
+    """
     out_datasets = [
         (f"pred_affs_{iteration}", len(neighborhood)),
         (f"pred_lsds_{iteration}", 10),
