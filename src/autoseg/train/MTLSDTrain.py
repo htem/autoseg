@@ -8,7 +8,7 @@ from lsd.train.gp import AddLocalShapeDescriptor
 
 from ..models.MTLSDModel import MTLSDModel
 from ..networks.FLibUNet import setup_unet
-from ..losses.MSELoss import Weighted_MSELoss
+from ..losses.MSELoss import Weighted_GMSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood
@@ -40,7 +40,7 @@ def mtlsd_train(
     unet = setup_unet()
 
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.out_channels)
-    mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
+    mtlsd_loss = Weighted_GMSELoss()  # aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(
         params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
     )

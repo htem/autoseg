@@ -15,7 +15,7 @@ from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
 from ..networks.NLayerDiscriminator import NLayerDiscriminator, NLayerDiscriminator3D
 from ..networks.FLibUNet import setup_unet
 from ..losses.GANLoss import GANLoss
-from ..losses.MSELoss import Weighted_MSELoss
+from ..losses.MSELoss import Weighted_GMSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood
@@ -50,7 +50,7 @@ def stelarr_train(
     discriminator: NLayerDiscriminator3D = NLayerDiscriminator(
         ndims=3,
     )  # NLayerDiscriminator3D
-    loss: Weighted_MSELoss = Weighted_MSELoss(discrim=discriminator)  # aff_lambda=0)
+    loss: Weighted_GMSELoss = Weighted_GMSELoss(discrim=discriminator)  # aff_lambda=0)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.5e-4, betas=(0.95, 0.999))
     discriminator_optimizer = torch.optim.Adam(
         discriminator.parameters(), lr=0.5e-4, betas=(0.95, 0.999)

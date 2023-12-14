@@ -14,7 +14,7 @@ from ..models.ACLSDModel import ACLSDModel
 from ..models.MTLSDModel import MTLSDModel
 from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
 from ..networks.FLibUNet import setup_unet
-from ..losses.MSELoss import Weighted_MSELoss
+from ..losses.MSELoss import Weighted_GMSELoss
 from ..losses.ACLSDLoss import WeightedACLSD_MSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
@@ -53,7 +53,7 @@ def aclsd_train(
     )
 
     mtlsd_model = MTLSDModel(unet=unet, num_fmaps=unet.out_channels)
-    mtlsd_loss = Weighted_MSELoss()  # aff_lambda=0)
+    mtlsd_loss = Weighted_GMSELoss()  # aff_lambda=0)
     mtlsd_optimizer = torch.optim.Adam(
         params=mtlsd_model.parameters(), lr=0.5e-4, betas=(0.95, 0.999)
     )
