@@ -24,6 +24,19 @@ def mtlsd_train(
     iterations: int = 100000,
     save_every: int = 25000,
 ) -> None:
+    """
+    Train MTLSD model using Gunpowder library.
+
+    Args:
+        raw_file (str): 
+            Path to the raw data file.
+        voxel_size (int): 
+            Voxel size.
+        iterations (int): 
+            Number of training iterations.
+        save_every (int): 
+            Save predictions every 'save_every' iterations.
+    """
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     labels_mask = gp.ArrayKey("LABELS_MASK")
