@@ -8,7 +8,7 @@ from lsd.train.gp import AddLocalShapeDescriptor
 
 from ..models.MTLSDModel import MTLSDModel
 from ..networks.FLibUNet import setup_unet
-from ..losses.MSELoss import Weighted_GMSELoss
+from ..losses.GMSELoss import Weighted_GMSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood

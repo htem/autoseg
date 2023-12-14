@@ -15,7 +15,7 @@ from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
 from ..networks.NLayerDiscriminator import NLayerDiscriminator, NLayerDiscriminator3D
 from ..networks.FLibUNet import setup_unet
 from ..losses.GANLoss import GANLoss
-from ..losses.MSELoss import Weighted_GMSELoss
+from ..losses.GMSELoss import Weighted_GMSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
 from ..utils import neighborhood

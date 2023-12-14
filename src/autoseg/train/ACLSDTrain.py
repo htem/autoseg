@@ -14,7 +14,7 @@ from ..models.ACLSDModel import ACLSDModel
 from ..models.MTLSDModel import MTLSDModel
 from ..postprocess.segment_skel_correct import get_skel_correct_segmentation
 from ..networks.FLibUNet import setup_unet
-from ..losses.MSELoss import Weighted_GMSELoss
+from ..losses.GMSELoss import Weighted_GMSELoss
 from ..losses.ACLSDLoss import WeightedACLSD_MSELoss
 from ..gp_filters.random_noise import RandomNoiseAugment
 from ..gp_filters.smooth_array import SmoothArray
