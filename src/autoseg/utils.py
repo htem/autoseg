@@ -1,26 +1,8 @@
-import numpy as np
-from funlib.persistence import prepare_ds
 from funlib.geometry import Coordinate, Roi
 import tifffile
 import numpy as np
 import zarr
-import numpy as np
-import daisy
-import zarr
-from skimage.draw import line_nd
-import webknossos as wk
-import wkw
-from time import gmtime, strftime
-import zipfile
-import daisy
-import tempfile
-from glob import glob
-import os
-from funlib.geometry import Roi, Coordinate
-from funlib.persistence import open_ds, prepare_ds
-import numpy as np
-import logging
-from skimage.draw import line_nd
+from funlib.persistence import prepare_ds
 
 
 neighborhood: list[list[int]] = [

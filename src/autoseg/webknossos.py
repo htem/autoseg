@@ -1,8 +1,6 @@
-from re import L
 import numpy as np
 from funlib.persistence import prepare_ds
 from funlib.geometry import Coordinate, Roi
-import tifffile
 import numpy as np
 import zarr
 import numpy as np
