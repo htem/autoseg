@@ -111,7 +111,7 @@ your_dataset.zarr/
 
 1. The first step in the `autoseg` segmentation pipeline is predicting pixel affinities. Pointing the `autoseg.train_model()` driver function to a zarr with the following volumes will allow for training, along with hyperparameter tuning.
 
-```bash
+```python
 from autoseg import train_model
 
 
