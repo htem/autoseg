@@ -15,7 +15,17 @@ def generate_graphs_with_seg_labels(segment_array, skeleton_path):
     Add predicted labels to the ground-truth graph. We also re-assign unique ids to
     each cluster of connected nodes after removal of nodes outside of the ROI.
     This is to differentiate between sets of nodes that are discontinuous in
-    the ROI but originally belonged to the same skeleton ID
+    the ROI but originally belonged to the same skeleton ID.
+
+    Args:
+        segment_array (daisy.Array): 
+            Array containing predicted segmentation labels.
+        skeleton_path (str): 
+            Path to the skeleton data file.
+
+    Returns:
+        networkx.Graph: 
+            Ground-truth graph with predicted labels added.
     """
     gt_graph = np.load(skeleton_path, allow_pickle=True)
     next_highest_seg_label = int(segment_array.data.max()) + 1
@@ -52,6 +62,19 @@ def generate_graphs_with_seg_labels(segment_array, skeleton_path):
 
 
 def eval_erl(graph):
+    """
+    Compute Expected Run Length (ERL) and normalized ERL for a given graph.
+
+    Args:
+        graph (networkx.Graph): 
+            Graph representing the ground-truth.
+
+    Returns:
+        float: 
+            ERL value.
+        float: 
+            Normalized ERL value.
+    """
     node_seg_lut = {}
     for node, attr in graph.nodes(data=True):
         node_seg_lut[node] = attr["seg_label"]
@@ -79,6 +102,19 @@ def eval_erl(graph):
 
 
 def build_segment_label_subgraph(segment_nodes, graph):
+    """
+    Build a subgraph using a set of segment nodes from the given graph.
+
+    Args:
+        segment_nodes (Iterable): 
+            Nodes representing segments.
+        graph (networkx.Graph): 
+            Original graph.
+
+    Returns:
+        networkx.Graph: 
+            Subgraph containing specified segment nodes.
+    """
     subgraph = graph.subgraph(segment_nodes)
     skeleton_clusters = nx.connected_components(subgraph)
     seg_graph = nx.Graph()
@@ -97,6 +133,21 @@ def build_segment_label_subgraph(segment_nodes, graph):
 
 # Returns the closest pair of nodes on 2 skeletons
 def get_closest_node_pair_between_two_skeletons(skel1, skel2, graph):
+    """
+    Get the closest pair of nodes between two skeletons in the given graph.
+
+    Args:
+        skel1 (Iterable): 
+            Nodes of the first skeleton.
+        skel2 (Iterable): 
+            Nodes of the second skeleton.
+        graph (networkx.Graph): 
+            Original graph.
+
+    Returns:
+        Tuple: 
+            Closest pair of nodes and their edge attributes.
+    """
     multiplier = (1, 1, 1)
     shortest_len = math.inf
     for node1, node2 in product(skel1, skel2):
@@ -113,6 +164,17 @@ def get_closest_node_pair_between_two_skeletons(skel1, skel2, graph):
 
 
 def find_merge_errors(graph):
+    """
+    Find merge errors in the given graph.
+
+    Args:
+        graph (networkx.Graph): 
+            Original graph.
+
+    Returns:
+        set: 
+            Set of merge errors.
+    """
     seg_dict = {}
     for nid, attr in graph.nodes(data=True):
         seg_label = attr["seg_label"]
@@ -144,6 +206,17 @@ def find_merge_errors(graph):
 
 
 def get_split_merges(graph):
+    """
+    Find split merges in the given graph.
+
+    Args:
+        graph (networkx.Graph): 
+            Original graph.
+
+    Returns:
+        set: 
+            Set of split merges.
+    """
     # Count split errors. An error is an edge in the GT skeleton graph connecting two nodes
     # of different segment ids.
     split_errors = []
@@ -155,7 +228,17 @@ def get_split_merges(graph):
 
 
 def set_point_in_array(array, point_coord, val):
-    """Helper function to set value using real-world nm coordinates"""
+    """
+    Set a specific point in the array to a given value.
+
+    Args:
+        array (daisy.Array): 
+            Target array.
+        point_coord (Tuple): 
+            Coordinates of the point.
+        val: 
+            Value to set.
+    """
     point_coord = daisy.Coordinate(point_coord)
     vox_aligned_offset = (point_coord // array.voxel_size) * array.voxel_size
     point_roi = daisy.Roi(vox_aligned_offset, array.voxel_size)
@@ -163,7 +246,19 @@ def set_point_in_array(array, point_coord, val):
 
 
 def make_voxel_gt_array(test_array, gt_graph):
-    """Rasterize GT points to an empty array to compute Rand/VOI"""
+    """
+    Rasterize ground-truth points to an empty array for computing Rand/VOI.
+
+    Args:
+        test_array (daisy.Array): 
+            Target array.
+        gt_graph (networkx.Graph): 
+            Ground-truth graph.
+
+    Returns:
+        daisy.Array: 
+            Voxel array containing ground-truth information.
+    """
     gt_ndarray = np.zeros_like(test_array.data).astype(np.uint64)
     gt_array = daisy.Array(
         gt_ndarray, roi=test_array.roi, voxel_size=test_array.voxel_size
@@ -176,7 +271,19 @@ def make_voxel_gt_array(test_array, gt_graph):
 
 
 def get_voi(segment_array, gt_graph):
-    """Wrapper fn to compute Rand/VOI scores"""
+    """
+    Wrapper function to compute Rand/VOI scores.
+
+    Args:
+        segment_array (daisy.Array): 
+            Array containing predicted segmentation labels.
+        gt_graph (networkx.Graph): 
+            Ground-truth graph.
+
+    Returns:
+        Dict: 
+            Dictionary containing Rand/VOI scores.
+    """
     voxel_gt = make_voxel_gt_array(segment_array, gt_graph)
     res = funlib.evaluate.rand_voi(
         truth=voxel_gt.data, test=segment_array.data.astype(np.uint64)
@@ -185,6 +292,25 @@ def get_voi(segment_array, gt_graph):
 
 
 def run_eval(skeleton_file, segmentation_file, segmentation_ds, roi, downsampling=None):
+    """
+    Run evaluation on the predicted segmentation.
+
+    Args:
+        skeleton_file (str): 
+            Path to the skeleton data file.
+        segmentation_file (str): 
+            Path to the segmentation data file.
+        segmentation_ds (str): 
+            Dataset name in the segmentation file.
+        roi (daisy.Roi): 
+            Region of interest.
+        downsampling (int): 
+            Downsample factor for evaluation.
+
+    Returns:
+        Dict:
+            Dictionary containing evaluation metrics.
+    """
     # load segmentation
     segment_array = daisy.open_ds(segmentation_file, segmentation_ds)
     if roi is None:

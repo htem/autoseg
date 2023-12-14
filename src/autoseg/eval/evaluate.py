@@ -16,6 +16,24 @@ def segment_and_validate(
     checkpoint_num=250000,
     setup_num="1738",
 ) -> dict:
+    """
+    Segment and Validate a given checkpoint for the Affinity Model.
+
+    This function performs segmentation using the specified model checkpoint and validates the results.
+    It logs information about the segmentation and validation process.
+
+    Args:
+        model_checkpoint (str): 
+            The checkpoint of the segmentation model to use (default is "latest").
+        checkpoint_num (int): 
+            The checkpoint number for the affinity model (default is 250000).
+        setup_num (str): 
+            The setup number for the affinity model (default is "1738").
+
+    Returns:
+        dict: 
+            A dictionary containing scores and evaluation metrics.
+    """
     logger.info(
         msg=f"Segmenting checkpoint {model_checkpoint}, aff_model checkpoint {checkpoint_num}..."
     )
@@ -63,6 +81,33 @@ def validate(
     print_in_xyz=False,
     downsample=None,
 ) -> None:
+    """
+    Validate segmentation results using specified parameters.
+
+    Args:
+        checkpoint (str): 
+            The checkpoint identifier.
+        threshold (float): 
+            The threshold value.
+        offset (str): 
+            The offset for ROI (default is "3960,3960,3960").
+        roi_shape (str): 
+            The shape of ROI (default is "31680,31680,31680").
+        skel (str): 
+            The path to the skeleton data file (default is "../../data/XPRESS_validation_skels.npz").
+        zarr (str): 
+            The path to the Zarr file for storing segmentation data (default is "./validation.zarr").
+        h5 (str): 
+            The path to the HDF5 file for storing validation data (default is "validation.h5").
+        ds (str): 
+            The dataset name (default is "pred_seg").
+        print_errors (bool): 
+            Print errors during validation (default is False).
+        print_in_xyz (bool): 
+            Print coordinates in XYZ format (default is False).
+        downsample (int): 
+            Downsample factor for evaluation (default is None).
+    """
     network = os.path.abspath(".").split(os.path.sep)[-1]
     aff_setup, aff_checkpoint = str(threshold).split(".")[::-1]
 
