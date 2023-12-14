@@ -30,7 +30,7 @@ def predict_task(
     voxel_size: int = 33,
 ) -> None:
     """
-    Predict segmentation outputs using a trained deep learning model.
+    Predict affinities using a trained deep learning model.
 
     Parameters:
         model: 
