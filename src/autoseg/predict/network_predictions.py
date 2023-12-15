@@ -30,7 +30,7 @@ def predict_task(
     voxel_size: int = 33,
 ) -> None:
     """
-    Predict affinities using a trained deep learning model.
+    Predict affinities using a trained learning model.
 
     Parameters:
         model:
