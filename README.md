@@ -74,7 +74,7 @@ pip install git+https://github.com/brianreicher/autoseg.git
 ```
 
 ### Features
-
+TODO
 
 ### Usage
 This package is used for training, predicting, & evaluating deep learning segmentation models. The models are compatible with Zarr & N5 chunked image files, and volumes should be stored in the following format:
@@ -127,6 +127,20 @@ train_model(
 ```
 Functonality exists in `autoseg.utils` and `autoseg.WebknossosToolkit()` to handle data fetching, transformations, and conversions.
 
+2. After affinities have been predicted, the `autoseg.postprocess` module is used to run Mutex Watershed or Merge Tree instance segmentation. Users can pass in the desired affinities Zarr to segment, as follows:
+```python
+from autoseg import postprocess.get_validation_segmentation
+
+
+get_validation_segmentation(
+    segmentation_style: str = "mws",
+    iteration="latest",
+    raw_file="./data.zarr",
+    raw_dataset="volumes/validation_raw",
+    out_file="./validation.zarr",
+)
+```
+TODO
 
 ### Credits
 
