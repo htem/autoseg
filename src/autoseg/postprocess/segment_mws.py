@@ -1,13 +1,11 @@
 # UTILIZES RUSTY_MWS, HGLOM FOR ALL SEGMENTATION, ORIGINALLY WRITTEN BY BRIAN REICHER (2023)
-import torch
 import rusty_mws
 import hglom
 
 from ..utils import neighborhood
 from ..predict.network_predictions import predict_task
-from ..networks.FLibUNet import setup_unet
+from ..networks import *
 from ..models import *
-from ..losses import *
 
 
 def _setup_model(network=setup_unet(), model=MTLSDModel):
